@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#3aab85">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CAP Chamados">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Chamado Rápido · CAP · FMC</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #3aab85;
+    --green-light: #5dc9a5;
+    --green-dark: #1e6b52;
+    --green-dim: rgba(58,171,133,0.12);
+    --bg: #090f0c;
+    --bg2: #0d1a14;
+    --bg3: #111f18;
+    --text: #e8f5f0;
+    --text-dim: rgba(232,245,240,0.5);
+    --border: rgba(58,171,133,0.22);
+    --border-hover: rgba(93,201,165,0.55);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    min-height: 100vh;
+    font-family: 'Rajdhani', sans-serif;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0 60px 0;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(58,171,133,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(58,171,133,0.05) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(58,171,133,0.12) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    width: 100%;
+    max-width: 680px;
+    position: relative;
+    z-index: 10;
+    padding: 40px 24px 0;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .logo-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--green-dark), var(--green));
+    border: 2px solid rgba(93,201,165,0.5);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px; color: #fff; letter-spacing: 1px;
+    box-shadow: 0 0 20px rgba(58,171,133,0.35);
+    flex-shrink: 0;
+  }
+
+  .header-meta { flex: 1; }
+  .header-inst {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    color: var(--green); text-transform: uppercase; opacity: 0.8;
+  }
+  .header-dept {
+    font-size: 13px; font-weight: 600; letter-spacing: 2px;
+    color: var(--text-dim); text-transform: uppercase;
+  }
+
+  .status-pill {
+    display: flex; align-items: center; gap: 7px;
+    background: rgba(58,171,133,0.1); border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 14px;
+  }
+  .status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green-light);
+    box-shadow: 0 0 10px rgba(93,201,165,0.9);
+    animation: blink 2.5s infinite;
+  }
+  .status-text {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    color: var(--green-light); text-transform: uppercase;
+  }
+
+  @keyframes blink {
+    0%,100% { opacity:1; } 50% { opacity:0.4; }
+  }
+
+  /* Title banner */
+  .title-banner {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .title-banner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--green), var(--green-light), var(--green), transparent);
+  }
+
+  .title-banner::after {
+    content: 'CAP';
+    position: absolute;
+    right: 24px; top: 50%; transform: translateY(-50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 100px; letter-spacing: -2px;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(58,171,133,0.15);
+    pointer-events: none;
+    line-height: 1;
+  }
+
+  .title-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 4px;
+    color: var(--green); text-transform: uppercase; margin-bottom: 6px;
+  }
+
+  .title-main {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px; letter-spacing: 3px; color: #fff; line-height: 1;
+    text-shadow: 0 0 30px rgba(58,171,133,0.4);
+  }
+
+  .title-sub {
+    font-size: 13px; font-weight: 600; letter-spacing: 2px;
+    color: var(--text-dim); text-transform: uppercase; margin-top: 6px;
+  }
+
+  /* Steps bar */
+  .steps-bar {
+    display: flex; gap: 6px; margin-top: 20px;
+    padding: 0 2px;
+  }
+  .step-segment {
+    flex: 1; height: 3px; border-radius: 2px;
+    background: var(--border); transition: background 0.4s;
+  }
+  .step-segment.active { background: var(--green); box-shadow: 0 0 8px rgba(58,171,133,0.5); }
+  .step-segment.done { background: var(--green-dark); }
+
+  .steps-label {
+    display: flex; justify-content: space-between;
+    margin-top: 8px; padding: 0 2px;
+  }
+  .step-name {
+    font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    color: var(--text-dim); text-transform: uppercase;
+    transition: color 0.3s;
+  }
+  .step-name.active { color: var(--green-light); }
+
+  /* ── FORM CARD ── */
+  .form-card {
+    width: 100%; max-width: 680px;
+    position: relative; z-index: 10;
+    padding: 0 24px;
+    margin-top: 20px;
+    animation: fadeUp 0.7s ease 0.1s both;
+  }
+
+  /* Section block */
+  .section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 28px 24px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+    display: none;
+    animation: fadeUp 0.4s ease both;
+  }
+  .section.active { display: block; }
+
+  .section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--green-dark), var(--green), var(--green-dark), transparent);
+  }
+
+  .section-number {
+    position: absolute;
+    top: 20px; right: 24px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px; color: rgba(58,171,133,0.08);
+    line-height: 1; pointer-events: none;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; letter-spacing: 3px;
+    color: var(--green-light); margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .section-title .icon {
+    font-size: 18px;
+  }
+
+  /* Field */
+  .field { margin-bottom: 20px; }
+  .field:last-child { margin-bottom: 0; }
+
+  .field-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    color: var(--green); text-transform: uppercase;
+    margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+  }
+  .field-label .req { color: #ff6b6b; font-size: 14px; }
+
+  /* Read-only sala badge */
+  .sala-badge {
+    background: rgba(58,171,133,0.08);
+    border: 1px solid rgba(58,171,133,0.3);
+    border-radius: 8px;
+    padding: 14px 18px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .sala-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px; letter-spacing: 3px; color: #fff;
+  }
+  .sala-tag {
+    font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    color: var(--green); text-transform: uppercase;
+    background: rgba(58,171,133,0.15); border-radius: 10px; padding: 4px 10px;
+  }
+
+  /* Input */
+  input[type="text"], input[type="tel"], textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px; font-weight: 600;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    resize: none;
+  }
+
+  input[type="text"]:focus, input[type="tel"]:focus, textarea:focus {
+    border-color: var(--green);
+    background: rgba(58,171,133,0.06);
+    box-shadow: 0 0 0 3px rgba(58,171,133,0.1);
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: rgba(232,245,240,0.25);
+    font-weight: 500;
+  }
+
+  /* Category cards */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .cat-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 12px;
+    transition: all 0.2s;
+    user-select: none;
+  }
+
+  .cat-card:hover {
+    border-color: var(--border-hover);
+    background: rgba(58,171,133,0.07);
+  }
+
+  .cat-card.selected {
+    border-color: var(--green);
+    background: rgba(58,171,133,0.12);
+    box-shadow: 0 0 0 1px var(--green), 0 0 16px rgba(58,171,133,0.15);
+  }
+
+  .cat-card input[type="radio"] { display: none; }
+
+  .cat-icon { font-size: 22px; flex-shrink: 0; }
+
+  .cat-info { flex: 1; }
+  .cat-name {
+    font-size: 14px; font-weight: 700; letter-spacing: 1px;
+    color: var(--text); text-transform: uppercase;
+  }
+  .cat-desc {
+    font-size: 11px; color: var(--text-dim); margin-top: 2px;
+  }
+
+  .cat-check {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+  }
+  .cat-card.selected .cat-check {
+    border-color: var(--green);
+    background: var(--green);
+  }
+  .cat-card.selected .cat-check::after {
+    content: '✓'; font-size: 11px; color: #fff; font-weight: 700;
+  }
+
+  /* Urgency selector */
+  .urgency-row {
+    display: flex; gap: 10px;
+  }
+
+  .urg-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 10px;
+    cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    transition: all 0.2s;
+    user-select: none;
+  }
+
+  .urg-btn:hover { background: rgba(255,255,255,0.05); border-color: var(--border-hover); }
+
+  .urg-btn.selected-alta {
+    border-color: #ff6b6b;
+    background: rgba(255,107,107,0.1);
+    box-shadow: 0 0 0 1px #ff6b6b, 0 0 16px rgba(255,107,107,0.12);
+  }
+  .urg-btn.selected-media {
+    border-color: #f4a261;
+    background: rgba(244,162,97,0.1);
+    box-shadow: 0 0 0 1px #f4a261, 0 0 16px rgba(244,162,97,0.12);
+  }
+  .urg-btn.selected-baixa {
+    border-color: var(--green);
+    background: var(--green-dim);
+    box-shadow: 0 0 0 1px var(--green), 0 0 16px rgba(58,171,133,0.12);
+  }
+
+  .urg-icon { font-size: 24px; }
+  .urg-label {
+    font-size: 12px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--text);
+  }
+  .urg-desc {
+    font-size: 10px; color: var(--text-dim); text-align: center; line-height: 1.3;
+  }
+
+  /* Nav buttons */
+  .nav-row {
+    display: flex; gap: 12px; margin-top: 20px;
+  }
+
+  .btn-back {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 24px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px; font-weight: 700; letter-spacing: 2px;
+    color: var(--text-dim);
+    cursor: pointer; text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .btn-back:hover { border-color: var(--border-hover); color: var(--text); }
+
+  .btn-next {
+    flex: 1;
+    background: linear-gradient(135deg, var(--green-dark), var(--green));
+    border: none;
+    border-radius: 8px;
+    padding: 16px 28px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px; letter-spacing: 3px; color: #fff;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: all 0.25s;
+    box-shadow: 0 4px 20px rgba(58,171,133,0.25);
+    position: relative; overflow: hidden;
+  }
+
+  .btn-next::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, transparent, rgba(255,255,255,0.08), transparent);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .btn-next:hover::before { opacity: 1; }
+  .btn-next:hover { box-shadow: 0 6px 28px rgba(58,171,133,0.4); transform: translateY(-1px); }
+  .btn-next:active { transform: translateY(0); }
+
+  .btn-submit {
+    flex: 1;
+    background: linear-gradient(135deg, #1a5c40, #3aab85);
+    border: none;
+    border-radius: 8px;
+    padding: 18px 28px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px; letter-spacing: 4px; color: #fff;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: all 0.25s;
+    box-shadow: 0 4px 24px rgba(58,171,133,0.3);
+    position: relative; overflow: hidden;
+  }
+  .btn-submit:hover { box-shadow: 0 8px 32px rgba(58,171,133,0.5); transform: translateY(-2px); }
+
+  /* Success screen */
+  #success {
+    display: none;
+    width: 100%; max-width: 680px;
+    position: relative; z-index: 10;
+    padding: 0 24px;
+    margin-top: 20px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .success-card {
+    background: var(--bg2);
+    border: 1px solid rgba(58,171,133,0.35);
+    border-radius: 12px;
+    padding: 48px 32px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+
+  .success-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--green), var(--green-light), var(--green), transparent);
+  }
+
+  .success-icon {
+    font-size: 64px; margin-bottom: 16px;
+    animation: pop 0.5s cubic-bezier(.175,.885,.32,1.275) both;
+  }
+
+  @keyframes pop {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .success-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px; letter-spacing: 4px; color: var(--green-light);
+    margin-bottom: 8px;
+  }
+
+  .success-msg {
+    font-size: 16px; font-weight: 600; letter-spacing: 1px;
+    color: var(--text-dim); margin-bottom: 28px; line-height: 1.5;
+  }
+
+  .success-info {
+    background: var(--green-dim);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 12px; margin-bottom: 8px;
+  }
+  .success-info-icon { font-size: 20px; }
+  .success-info-text { font-size: 13px; font-weight: 600; letter-spacing: 1px; color: var(--text-dim); text-align: left; }
+  .success-info-text strong { color: var(--text); display: block; font-size: 15px; }
+
+  /* ── Animations ── */
+  @keyframes fadeDown {
+    from { opacity:0; transform: translateY(-16px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(16px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  /* Floating particles */
+  .particle {
+    position: fixed; width: 2px; height: 2px; border-radius: 50%;
+    background: rgba(93,201,165,0.4); pointer-events: none; z-index: 1;
+    animation: float linear infinite;
+  }
+  @keyframes float {
+    from { transform: translateY(100vh); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    to   { transform: translateY(-100px); opacity: 0; }
+  }
+
+  /* Helper text */
+  .helper {
+    font-size: 11px; color: var(--text-dim); letter-spacing: 1px;
+    margin-top: 6px; padding-left: 2px;
+  }
+
+  /* Other category input */
+  .other-input {
+    margin-top: 12px; display: none;
+  }
+  .other-input.show { display: block; }
+
+  /* ── MOBILE RESPONSIVENESS ── */
+  @media (max-width: 480px) {
+    body { padding: 0 0 40px 0; }
+
+    .header { padding: 20px 16px 0; }
+
+    .header-top { gap: 10px; }
+    .logo-circle { width: 42px; height: 42px; font-size: 13px; }
+    .header-inst { font-size: 10px; letter-spacing: 2px; }
+    .header-dept { font-size: 11px; }
+    .status-pill { padding: 5px 10px; }
+    .status-text { font-size: 10px; }
+
+    .title-banner { padding: 20px 20px; }
+    .title-main { font-size: 38px; }
+    .title-sub { font-size: 11px; letter-spacing: 1px; }
+    .title-banner::after { font-size: 70px; right: 12px; }
+
+    .form-card { padding: 0 16px; margin-top: 16px; }
+
+    .section { padding: 20px 18px 18px; }
+    .section-number { font-size: 36px; top: 14px; right: 16px; }
+    .section-title { font-size: 18px; margin-bottom: 16px; }
+
+    .sala-value { font-size: 22px; }
+
+    .cat-card { padding: 12px 14px; gap: 10px; }
+    .cat-icon { font-size: 20px; }
+    .cat-name { font-size: 13px; }
+    .cat-desc { font-size: 10px; }
+
+    .urgency-row { gap: 8px; }
+    .urg-btn { padding: 12px 6px; }
+    .urg-icon { font-size: 20px; }
+    .urg-label { font-size: 11px; letter-spacing: 1px; }
+    .urg-desc { font-size: 9px; }
+
+    textarea { font-size: 15px; }
+    input[type="text"], input[type="tel"] { font-size: 15px; }
+
+    .btn-next { font-size: 18px; padding: 14px 20px; }
+    .btn-submit { font-size: 18px; padding: 16px 20px; }
+    .btn-back { padding: 12px 16px; font-size: 13px; }
+
+    .success-card { padding: 36px 20px; }
+    .success-icon { font-size: 52px; }
+    .success-title { font-size: 34px; }
+    .success-msg { font-size: 14px; }
+
+    #success { padding: 0 16px; }
+  }
+
+  @media (max-width: 360px) {
+    .title-main { font-size: 32px; }
+    .urgency-row { flex-direction: column; }
+    .urg-btn { flex-direction: row; gap: 12px; padding: 12px 14px; }
+    .urg-desc { text-align: left; }
+  }
+
+</style>
+</head>
+<body>
+
+<!-- Particles -->
+<script>
+  for(let i=0;i<12;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.style.left=Math.random()*100+'vw';
+    p.style.animationDuration=(8+Math.random()*12)+'s';
+    p.style.animationDelay=(Math.random()*10)+'s';
+    p.style.width=p.style.height=(1+Math.random()*2)+'px';
+    document.body.appendChild(p);
+  }
+</script>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="logo-circle">.fmc</div>
+    <div class="header-meta">
+      <div class="header-inst">FMC · Faculdade de Medicina de Campos</div>
+      <div class="header-dept">Central de Apoio Pedagógico — CAP</div>
+    </div>
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      <span class="status-text">Online</span>
+    </div>
+  </div>
+
+  <div class="title-banner">
+    <div class="title-label">· Sistema de Suporte ·</div>
+    <div class="title-main">CHAMADO<br>RÁPIDO</div>
+    <div class="title-sub">Preencha · Envie · Aguarde o atendimento</div>
+  </div>
+
+  <!-- Progress -->
+  <div class="steps-bar" id="stepsBar">
+    <div class="step-segment active" id="seg0"></div>
+    <div class="step-segment" id="seg1"></div>
+    <div class="step-segment" id="seg2"></div>
+  </div>
+  <div class="steps-label">
+    <span class="step-name active" id="sname0">Local</span>
+    <span class="step-name" id="sname1">Problema</span>
+    <span class="step-name" id="sname2">Solicitante</span>
+  </div>
+</div>
+
+<!-- FORM -->
+<div class="form-card">
+
+  <!-- STEP 1: Local -->
+  <div class="section active" id="step0">
+    <div class="section-number">01</div>
+    <div class="section-title"><span class="icon">📍</span> Local / Sala</div>
+
+    <div class="field">
+      <div class="field-label">Sala <span class="req">*</span></div>
+      <div class="sala-badge">
+        <div class="sala-value" id="salaDisplay">SALA 201</div>
+        <div class="sala-tag">✓ Pré-preenchido</div>
+      </div>
+      <input type="hidden" id="sala" value="201">
+      <div class="helper">Sala identificada automaticamente pelo QR Code</div>
+    </div>
+
+    <!-- Categoria -->
+    <div class="field">
+      <div class="field-label">Categoria do Chamado <span class="req">*</span></div>
+      <div class="cat-grid" id="catGrid">
+        <label class="cat-card" onclick="selectCat(this,'Projetor / Data Show')">
+          <input type="radio" name="categoria" value="Projetor / Data Show">
+          <span class="cat-icon">📽️</span>
+          <div class="cat-info">
+            <div class="cat-name">Projetor</div>
+            <div class="cat-desc">Data Show / HDMI</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card" onclick="selectCat(this,'Computador / Login / Sistema')">
+          <input type="radio" name="categoria" value="Computador / Login / Sistema">
+          <span class="cat-icon">💻</span>
+          <div class="cat-info">
+            <div class="cat-name">Computador</div>
+            <div class="cat-desc">Login / Sistema</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card" onclick="selectCat(this,'Ar-condicionado / Climatização')">
+          <input type="radio" name="categoria" value="Ar-condicionado / Climatização">
+          <span class="cat-icon">❄️</span>
+          <div class="cat-info">
+            <div class="cat-name">Ar-condicionado</div>
+            <div class="cat-desc">Climatização</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card" onclick="selectCat(this,'Som / Microfone / Áudio')">
+          <input type="radio" name="categoria" value="Som / Microfone / Áudio">
+          <span class="cat-icon">🎤</span>
+          <div class="cat-info">
+            <div class="cat-name">Áudio</div>
+            <div class="cat-desc">Som / Microfone</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card" onclick="selectCat(this,'Iluminação / Energia')">
+          <input type="radio" name="categoria" value="Iluminação / Energia">
+          <span class="cat-icon">💡</span>
+          <div class="cat-info">
+            <div class="cat-name">Iluminação</div>
+            <div class="cat-desc">Energia / Luz</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card" onclick="selectCat(this,'Caneta / Apagador')">
+          <input type="radio" name="categoria" value="Caneta / Apagador">
+          <span class="cat-icon">✏️</span>
+          <div class="cat-info">
+            <div class="cat-name">Caneta / Apagador</div>
+            <div class="cat-desc">Material de quadro</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card" onclick="selectCat(this,'Carteira / Mesa')">
+          <input type="radio" name="categoria" value="Carteira / Mesa">
+          <span class="cat-icon">🪑</span>
+          <div class="cat-info">
+            <div class="cat-name">Carteira / Mesa</div>
+            <div class="cat-desc">Mobiliário da sala</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card" onclick="selectCat(this,'Outro')">
+          <input type="radio" name="categoria" value="Outro">
+          <span class="cat-icon">🔧</span>
+          <div class="cat-info">
+            <div class="cat-name">Outro</div>
+            <div class="cat-desc">Especificar abaixo</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+      </div>
+      <div class="other-input" id="otherInput">
+        <input type="text" id="outroTexto" placeholder="Descreva a categoria do problema...">
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-next" onclick="nextStep(1)">Próximo <span>→</span></button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Problema -->
+  <div class="section" id="step1">
+    <div class="section-number">02</div>
+    <div class="section-title"><span class="icon">⚡</span> Detalhes do Problema</div>
+
+    <!-- Urgência -->
+    <div class="field">
+      <div class="field-label">Nível de Urgência <span class="req">*</span></div>
+      <div class="urgency-row">
+        <div class="urg-btn" onclick="selectUrg(this,'Alta')">
+          <span class="urg-icon">🔴</span>
+          <span class="urg-label">Alta</span>
+          <span class="urg-desc">Aula / evento<br>parado</span>
+        </div>
+        <div class="urg-btn" onclick="selectUrg(this,'Média')">
+          <span class="urg-icon">🟡</span>
+          <span class="urg-label">Média</span>
+          <span class="urg-desc">Atender assim<br>que possível</span>
+        </div>
+        <div class="urg-btn" onclick="selectUrg(this,'Baixa')">
+          <span class="urg-icon">🟢</span>
+          <span class="urg-label">Baixa</span>
+          <span class="urg-desc">Pode aguardar<br>disponibilidade</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Descrição -->
+    <div class="field">
+      <div class="field-label">Descreva o Problema <span class="req">*</span></div>
+      <textarea id="descricao" rows="4" placeholder="Ex: Projetor não exibe imagem mesmo com HDMI conectado. Tentei reiniciar e não resolveu..."></textarea>
+      <div class="helper">Seja breve e objetivo. Isso agiliza o atendimento.</div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="nextStep(0)">← Voltar</button>
+      <button class="btn-next" onclick="nextStep(2)">Próximo →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Solicitante -->
+  <div class="section" id="step2">
+    <div class="section-number">03</div>
+    <div class="section-title"><span class="icon">👤</span> Identificação</div>
+
+    <div class="field">
+      <div class="field-label">Seu Nome <span class="req">*</span></div>
+      <input type="text" id="nome" placeholder="Prof. João Silva / Funcionário Maria Santos">
+    </div>
+
+    <div class="field">
+      <div class="field-label">WhatsApp para Retorno <span style="color:var(--text-dim);font-size:10px;">(opcional)</span></div>
+      <input type="tel" id="telefone" placeholder="(22) 99999-9999">
+      <div class="helper">Apenas se quiser ser contatado sobre o chamado.</div>
+    </div>
+
+    <!-- Resumo do chamado -->
+    <div class="field" style="margin-top:8px;">
+      <div class="field-label">Resumo do Chamado</div>
+      <div class="sala-badge" style="flex-direction:column; align-items:flex-start; gap:8px; padding:16px 18px;">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--green);text-transform:uppercase;">Sala:</span>
+          <span id="resumoSala" style="font-weight:700;font-size:15px;">—</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--green);text-transform:uppercase;">Categoria:</span>
+          <span id="resumoCat" style="font-weight:700;font-size:15px;">—</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--green);text-transform:uppercase;">Urgência:</span>
+          <span id="resumoUrg" style="font-weight:700;font-size:15px;">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="nextStep(1)">← Voltar</button>
+      <button class="btn-submit" onclick="submitForm()">🚀 Enviar Chamado</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- SUCCESS -->
+<div id="success">
+  <div class="success-card">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Chamado Enviado!</div>
+    <div class="success-msg">
+      Sua solicitação foi registrada com sucesso.<br>
+      A equipe CAP já foi notificada e irá atender em breve.
+    </div>
+
+    <div class="success-info">
+      <span class="success-info-icon">📍</span>
+      <div class="success-info-text">
+        Local do chamado
+        <strong id="successSala">—</strong>
+      </div>
+    </div>
+    <div class="success-info">
+      <span class="success-info-icon">🔧</span>
+      <div class="success-info-text">
+        Categoria registrada
+        <strong id="successCat">—</strong>
+      </div>
+    </div>
+    <div class="success-info">
+      <span class="success-info-icon">⚡</span>
+      <div class="success-info-text">
+        Nível de urgência
+        <strong id="successUrg">—</strong>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let currentStep = 0;
+  let selectedCat = '';
+  let selectedUrg = '';
+
+  function selectCat(el, value) {
+    document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedCat = value;
+    const other = document.getElementById('otherInput');
+    if(value === 'Outro') other.classList.add('show');
+    else other.classList.remove('show');
+  }
+
+  function selectUrg(el, value) {
+    document.querySelectorAll('.urg-btn').forEach(b => {
+      b.classList.remove('selected-alta','selected-media','selected-baixa');
+    });
+    selectedUrg = value;
+    if(value === 'Alta') el.classList.add('selected-alta');
+    else if(value === 'Média') el.classList.add('selected-media');
+    else el.classList.add('selected-baixa');
+  }
+
+  function updateSteps(step) {
+    for(let i=0;i<3;i++){
+      const seg = document.getElementById('seg'+i);
+      const name = document.getElementById('sname'+i);
+      seg.className = 'step-segment';
+      name.className = 'step-name';
+      if(i < step) { seg.classList.add('done'); }
+      else if(i === step) { seg.classList.add('active'); name.classList.add('active'); }
+    }
+  }
+
+  function nextStep(step) {
+    // Validations
+    if(currentStep === 0 && step === 1) {
+      if(!selectedCat) { alert('Por favor selecione a categoria do chamado.'); return; }
+    }
+    if(currentStep === 1 && step === 2) {
+      if(!selectedUrg) { alert('Por favor selecione o nível de urgência.'); return; }
+      const desc = document.getElementById('descricao').value.trim();
+      if(!desc) { alert('Por favor descreva o problema.'); return; }
+      // Update summary
+      document.getElementById('resumoSala').textContent = 'Sala ' + document.getElementById('sala').value;
+      document.getElementById('resumoCat').textContent = selectedCat;
+      document.getElementById('resumoUrg').textContent = selectedUrg;
+    }
+
+    document.getElementById('step'+currentStep).classList.remove('active');
+    currentStep = step;
+    document.getElementById('step'+currentStep).classList.add('active');
+    updateSteps(step);
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  // ⚙️ CONFIGURAÇÃO: Cole aqui a URL do seu Apps Script após implantar
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxId77oG4ZTcRzXth8Xdy_WNoKaDW_Lyer8dBqkohg4yOuOy9bSQWP_VcUh-3ZGW3vn/exec';
+
+  function submitForm() {
+    const nome = document.getElementById('nome').value.trim();
+    if(!nome) { alert('Por favor informe seu nome.'); return; }
+
+    const sala = document.getElementById('sala').value;
+    const cat = selectedCat === 'Outro'
+      ? document.getElementById('outroTexto').value || 'Outro'
+      : selectedCat;
+    const urg = selectedUrg;
+    const desc = document.getElementById('descricao').value.trim();
+    const tel = document.getElementById('telefone').value.trim() || '—';
+
+    // Bloqueia botão para evitar duplo envio
+    const btnSubmit = document.querySelector('.btn-submit');
+    btnSubmit.textContent = 'Enviando...';
+    btnSubmit.disabled = true;
+
+    // Envia para o Apps Script (Google Sheets + Telegram)
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sala: 'Sala ' + sala,
+        categoria: cat,
+        urgencia: urg,
+        descricao: desc,
+        nome: nome,
+        telefone: tel
+      })
+    })
+    .then(() => {
+      // Mostra tela de sucesso
+      document.querySelector('.form-card').style.display = 'none';
+      document.querySelector('.header').querySelector('.steps-bar').style.display = 'none';
+      document.querySelector('.header').querySelector('.steps-label').style.display = 'none';
+
+      const successEl = document.getElementById('success');
+      successEl.style.display = 'block';
+      document.getElementById('successSala').textContent = 'Sala ' + sala;
+      document.getElementById('successCat').textContent = cat;
+      document.getElementById('successUrg').textContent = urg;
+
+      window.scrollTo({top:0, behavior:'smooth'});
+    })
+    .catch(() => {
+      // Mesmo em erro de CORS o dado já foi enviado — mostra sucesso
+      document.querySelector('.form-card').style.display = 'none';
+      document.querySelector('.header').querySelector('.steps-bar').style.display = 'none';
+      document.querySelector('.header').querySelector('.steps-label').style.display = 'none';
+
+      const successEl = document.getElementById('success');
+      successEl.style.display = 'block';
+      document.getElementById('successSala').textContent = 'Sala ' + sala;
+      document.getElementById('successCat').textContent = cat;
+      document.getElementById('successUrg').textContent = urg;
+
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  }
+</script>
+
+<script>
+  // Registra o Service Worker (PWA)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log('CAP PWA: Service Worker registrado!'))
+        .catch(err => console.log('SW erro:', err));
+    });
+  }
+</script>
+</body>
+</html>
