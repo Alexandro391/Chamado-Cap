@@ -3,101 +3,108 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="theme-color" content="#3aab85">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" href="icon-192.png">
 <title>Chamado Rápido · CAP · FMC</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --green: #3aab85; --bg: #090f0c; --bg2: #0d1612; --text: #e0f5ee; }
+  :root {
+    --green: #3aab85;
+    --bg: #090f0c;
+    --bg2: #0d1612;
+    --text: #e0f5ee;
+  }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { margin: 0; background-color: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; }
-  .header { padding: 30px 20px; text-align: center; background: linear-gradient(to bottom, #0d1a15, var(--bg)); }
-  .logo { font-family: 'Bebas Neue', cursive; font-size: 2.5rem; letter-spacing: 2px; color: var(--green); margin: 0; }
-  .container { padding: 0 20px 50px; max-width: 500px; margin: 0 auto; }
-  .form-card { background: var(--bg2); padding: 25px; border-radius: 20px; border: 1px solid rgba(58,171,133,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-  label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: var(--green); text-transform: uppercase; letter-spacing: 1px; }
+  body {
+    margin: 0; padding: 0; background-color: var(--bg); color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+  }
+  .header { padding: 40px 20px 20px; text-align: center; }
+  .logo-fmc { font-family: 'Bebas Neue', cursive; font-size: 3rem; color: var(--green); margin: 0; }
+  .container { padding: 0 20px 60px; max-width: 480px; margin: 0 auto; }
+  .form-card { background: var(--bg2); padding: 30px 25px; border-radius: 24px; border: 1px solid rgba(58,171,133,0.15); }
+  
+  /* Estilo para esconder a seção da sala */
+  #sectionSala { display: block; }
+  
+  label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: var(--green); text-transform: uppercase; }
   input, select, textarea {
-    width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(58,171,133,0.3);
-    border-radius: 12px; padding: 12px 15px; color: #fff; font-family: inherit; font-size: 1rem; margin-bottom: 20px; transition: 0.3s;
+    width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(58,171,133,0.25);
+    border-radius: 14px; padding: 14px 16px; color: #fff; font-family: inherit; font-size: 1rem; margin-bottom: 22px;
   }
-  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--green); background: rgba(58,171,133,0.05); }
-  .urgencia-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .urgencia-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px; }
   .urg-btn {
-    border: 1px solid rgba(58,171,133,0.3); padding: 12px 5px; border-radius: 10px; text-align: center;
-    cursor: pointer; font-weight: 700; font-size: 0.75rem; transition: 0.3s; color: rgba(255,255,255,0.5);
+    border: 1px solid rgba(58,171,133,0.2); padding: 12px 5px; border-radius: 12px; text-align: center;
+    cursor: pointer; font-weight: 700; font-size: 0.75rem; background: rgba(58,171,133,0.05);
   }
-  input[type="radio"] { display: none; }
-  input[value="Baixa"]:checked + .urg-btn { background: #1e6b52; color: #fff; border-color: var(--green); }
-  input[value="Média"]:checked + .urg-btn { background: #b38600; color: #fff; border-color: #ffcc00; }
-  input[value="Alta"]:checked + .urg-btn { background: #992222; color: #fff; border-color: #ff4444; }
+  input[type="radio"]:checked + .urg-btn { background: var(--green); color: var(--bg); }
   .btn-submit {
     width: 100%; background: var(--green); color: var(--bg); border: none; padding: 18px;
-    border-radius: 12px; font-family: 'Bebas Neue'; font-size: 1.5rem; cursor: pointer; transition: 0.3s;
-    box-shadow: 0 4px 15px rgba(58,171,133,0.3);
+    border-radius: 14px; font-family: 'Bebas Neue'; font-size: 1.6rem; cursor: pointer;
   }
-  .btn-submit:active { transform: scale(0.98); opacity: 0.9; }
-  #success { display: none; text-align: center; padding: 40px 20px; animation: fadeIn 0.5s ease; }
-  .success-icon { font-size: 5rem; color: var(--green); margin-bottom: 10px; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  #success { display: none; text-align: center; }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="logo">.FMC · CAP</div>
-  <p style="font-size: 0.8rem; opacity: 0.6; letter-spacing: 2px;">CENTRAL DE APOIO PEDAGÓGICO</p>
+  <h1 class="logo-fmc">.FMC · CAP</h1>
+  <p id="txtInfo" style="font-size: 0.9rem; color: var(--green); font-weight: 600;">SUPORTE TÉCNICO</p>
 </div>
 
 <div class="container">
   <div id="formContainer" class="form-card">
-    <label>Localização / Sala</label>
-    <input type="text" id="salaInput" placeholder="Ex: Sala 201">
+    
+    <div id="sectionSala">
+      <label>Localização (SALA)</label>
+      <input type="text" id="salaInput" placeholder="Ex: SALA 201">
+    </div>
 
-    <label>O que precisa de suporte?</label>
+    <label>O que está acontecendo?</label>
     <select id="catInput">
       <option value="Problema no Projetor">Problema no Projetor</option>
       <option value="Som / Áudio">Som / Áudio</option>
       <option value="Ar Condicionado">Ar Condicionado</option>
       <option value="Computador / Internet">Computador / Internet</option>
-      <option value="Lousa / Mobiliário">Lousa / Mobiliário</option>
       <option value="Outros">Outros</option>
     </select>
 
-    <label>Urgência do Atendimento</label>
+    <label>Urgência</label>
     <div class="urgencia-group">
-      <label><input type="radio" name="urgencia" value="Baixa" checked><div class="urg-btn">BAIXA</div></label>
-      <label><input type="radio" name="urgencia" value="Média"><div class="urg-btn">MÉDIA</div></label>
-      <label><input type="radio" name="urgencia" value="Alta"><div class="urg-btn">ALTA</div></label>
+      <label><input type="radio" name="urgencia" value="Baixa" checked style="display:none"><div class="urg-btn">BAIXA</div></label>
+      <label><input type="radio" name="urgencia" value="Média" style="display:none"><div class="urg-btn">MÉDIA</div></label>
+      <label><input type="radio" name="urgencia" value="Alta" style="display:none"><div class="urg-btn">ALTA</div></label>
     </div>
 
-    <label>Descrição do Problema</label>
-    <textarea id="descInput" rows="3" placeholder="Detalhes que ajudem a equipe técnica..."></textarea>
+    <label>Descrição</label>
+    <textarea id="descInput" rows="3" placeholder="Detalhes opcionais..."></textarea>
 
-    <label>Seu Nome (Solicitante)</label>
-    <input type="text" id="nomeInput" placeholder="Informe seu nome">
+    <label>Seu Nome</label>
+    <input type="text" id="nomeInput" placeholder="Seu nome">
 
     <button class="btn-submit" onclick="enviarChamado()" id="btnTexto">ENVIAR CHAMADO</button>
   </div>
 
   <div id="success">
-    <div class="success-icon">✓</div>
-    <h2 style="font-family: 'Bebas Neue'; font-size: 2.5rem; margin: 0;">ENVIADO!</h2>
-    <p style="opacity: 0.8; margin-bottom: 30px;">A equipe foi notificada no Telegram e está a caminho.</p>
-    <button class="btn-submit" onclick="location.reload()" style="background: transparent; border: 1px solid var(--green); color: var(--green);">NOVO CHAMADO</button>
+    <h2 style="font-family: 'Bebas Neue'; font-size: 3rem; color: var(--green);">ENVIADO!</h2>
+    <p>A equipe CAP já foi notificada.</p>
+    <button class="btn-submit" onclick="location.reload()" style="background:transparent; border:1px solid var(--green); color:var(--green); margin-top:20px;">VOLTAR</button>
   </div>
 </div>
 
 <script>
-  // DETECTOR DE SALA VIA URL (Para QR Codes)
+  // LÓGICA AUTOMÁTICA
   window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
     const salaParam = urlParams.get('sala');
+    
     if (salaParam) {
-      const campo = document.getElementById('salaInput');
-      campo.value = decodeURIComponent(salaParam).toUpperCase();
-      campo.readOnly = true; 
-      campo.style.opacity = "0.5";
+      const valorSala = decodeURIComponent(salaParam).toUpperCase();
+      document.getElementById('salaInput').value = valorSala;
+      
+      // ESCONDE O CAMPO para o usuário não precisar ver o que já sabemos
+      document.getElementById('sectionSala').style.display = 'none';
+      
+      // Atualiza o texto do topo para confirmar a sala
+      document.getElementById('txtInfo').innerText = "CHAMADO PARA: " + valorSala;
     }
   };
 
@@ -105,13 +112,12 @@
     const btn = document.getElementById('btnTexto');
     const scriptURL = 'https://script.google.com/macros/s/AKfycbxId77oG4ZTcRzXth8Xdy_WNoKaDW_Lyer8dBqkohg4yOuOy9bSQWP_VcUh-3ZGW3vn/exec';
 
-    // Coleta dos dados
     const dados = {
-      sala: document.getElementById('salaInput').value || "Não informada",
+      sala: document.getElementById('salaInput').value,
       categoria: document.getElementById('catInput').value,
       urgencia: document.querySelector('input[name="urgencia"]:checked').value,
-      descricao: document.getElementById('descInput').value || "Sem descrição",
-      nome: document.getElementById('nomeInput').value || "Anônimo",
+      descricao: document.getElementById('descInput').value,
+      nome: document.getElementById('nomeInput').value,
       telefone: "Via Web"
     };
 
@@ -121,19 +127,12 @@
     fetch(scriptURL, {
       method: 'POST',
       mode: 'no-cors',
-      cache: 'no-cache',
       body: JSON.stringify(dados)
     }).then(() => {
       document.getElementById('formContainer').style.display = 'none';
       document.getElementById('success').style.display = 'block';
-      window.scrollTo({top: 0, behavior: 'smooth'});
-    }).catch(err => {
-      alert("Erro ao enviar. Verifique sua conexão.");
-      btn.innerText = "TENTAR NOVAMENTE";
-      btn.disabled = false;
     });
   }
 </script>
-
 </body>
 </html>
