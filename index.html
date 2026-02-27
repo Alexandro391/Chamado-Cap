@@ -612,6 +612,7 @@
 
 <!-- Particles -->
 <script>
+
   for(let i=0;i<12;i++){
     const p=document.createElement('div');
     p.className='particle';
@@ -667,11 +668,11 @@
     <div class="field">
       <div class="field-label">Sala <span class="req">*</span></div>
       <div class="sala-badge">
-        <div class="sala-value" id="salaDisplay">SALA 201</div>
-        <div class="sala-tag">✓ Pré-preenchido</div>
+        <div class="sala-value" id="salaDisplay">—</div>
+        <div class="sala-tag" id="salaBadge">✓ Pré-preenchido</div>
       </div>
-      <input type="hidden" id="sala" value="201">
-      <div class="helper">Sala identificada automaticamente pelo QR Code</div>
+      <input type="hidden" id="sala" value="">
+      <div class="helper" id="salaHelper">Sala identificada automaticamente pelo QR Code</div>
     </div>
 
     <!-- Categoria -->
@@ -880,6 +881,40 @@
 </div>
 
 <script>
+  // ── Lê a sala automaticamente pelo link do QR Code ──
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    const salaParam = params.get('sala');
+    if (salaParam) {
+      const ehNumero = /^\d+$/.test(salaParam);
+      const nomeFormatado = salaParam.replace(/_/g, ' ').replace(/^Lab /i, 'Lab. ');
+      const displayText = ehNumero ? 'SALA ' + salaParam : nomeFormatado.toUpperCase();
+      const valorReal   = ehNumero ? 'Sala ' + salaParam : nomeFormatado;
+      document.getElementById('salaDisplay').textContent = displayText;
+      document.getElementById('sala').value              = valorReal;
+      document.getElementById('salaBadge').textContent   = '\u2713 Identificado pelo QR Code';
+      document.getElementById('salaHelper').textContent  = 'Sala identificada automaticamente';
+    } else {
+      document.getElementById('salaDisplay').textContent = '?';
+      const badge = document.getElementById('salaBadge');
+      badge.textContent = '\u26a0 Digite abaixo';
+      badge.style.cssText = 'font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;background:rgba(255,180,0,0.15);border:1px solid rgba(255,180,0,0.4);color:rgba(255,200,0,0.9);border-radius:10px;padding:4px 10px;';
+      document.getElementById('salaHelper').textContent = 'Informe o local:';
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.placeholder = 'Ex: Sala 203, Anfiteatro...';
+      inp.style.cssText = 'width:100%;margin-top:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(58,171,133,0.22);border-radius:8px;padding:14px 16px;font-family:Rajdhani,sans-serif;font-size:16px;font-weight:600;color:#e8f5f0;outline:none;';
+      inp.addEventListener('input', function() {
+        document.getElementById('salaDisplay').textContent = this.value.toUpperCase() || '?';
+        document.getElementById('sala').value = this.value;
+      });
+      document.getElementById('salaHelper').after(inp);
+    }
+  })();
+</script>
+
+<script>
+
   let currentStep = 0;
   let selectedCat = '';
   let selectedUrg = '';
@@ -924,7 +959,7 @@
       const desc = document.getElementById('descricao').value.trim();
       if(!desc) { alert('Por favor descreva o problema.'); return; }
       // Update summary
-      document.getElementById('resumoSala').textContent = 'Sala ' + document.getElementById('sala').value;
+      document.getElementById('resumoSala').textContent = document.getElementById('sala').value;
       document.getElementById('resumoCat').textContent = selectedCat;
       document.getElementById('resumoUrg').textContent = selectedUrg;
     }
@@ -962,7 +997,7 @@
       mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        sala: 'Sala ' + sala,
+        sala: sala,
         categoria: cat,
         urgencia: urg,
         descricao: desc,
@@ -978,7 +1013,7 @@
 
       const successEl = document.getElementById('success');
       successEl.style.display = 'block';
-      document.getElementById('successSala').textContent = 'Sala ' + sala;
+      document.getElementById('successSala').textContent = sala;
       document.getElementById('successCat').textContent = cat;
       document.getElementById('successUrg').textContent = urg;
 
@@ -992,7 +1027,7 @@
 
       const successEl = document.getElementById('success');
       successEl.style.display = 'block';
-      document.getElementById('successSala').textContent = 'Sala ' + sala;
+      document.getElementById('successSala').textContent = sala;
       document.getElementById('successCat').textContent = cat;
       document.getElementById('successUrg').textContent = urg;
 
