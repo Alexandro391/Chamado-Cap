@@ -292,14 +292,11 @@ google.charts.load('current', { packages: ['corechart'], language: 'pt' });
 google.charts.setOnLoadCallback(fetchAndDraw);
 
 function fetchAndDraw() {
-  const url = 'https://docs.google.com/spreadsheets/d/' 
-    + SHEET_ID 
-    + '/gviz/tq?sheet=' 
-    + encodeURIComponent(SHEET_TAB) 
-    + '&tq=select%20*&headers=1';
-
+  const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?sheet=' + encodeURIComponent(SHEET_TAB) + '&tq=select%20*&headers=1';
   const query = new google.visualization.Query(url);
-  query.send(handleResponse);
+  
+  // O SEGREDO ESTÁ NESTA LINHA ABAIXO:
+  query.send(handleQueryResponse); 
 }
 
 function handleResponse(resp) {
@@ -311,16 +308,16 @@ function handleResponse(resp) {
   const dt = resp.getDataTable();
   const rows = [];
 
-  for (let i = 1; i < dt.getNumberOfRows(); i++) {
-    rows.push({
-      data:       dt.getFormattedValue(i, COL_DATA),
-      sala:       (dt.getFormattedValue(i, COL_SALA)        || '').trim(),
-      categoria:  (dt.getFormattedValue(i, COL_CATEGORIA)   || '').trim(),
-      urgencia:   (dt.getFormattedValue(i, COL_URGENCIA)    || '').trim(),
-      descricao:  (dt.getFormattedValue(i, COL_DESCRICAO)   || '').trim(),
-      solicitante:(dt.getFormattedValue(i, COL_SOLICITANTE) || '').trim(),
-    });
-  }
+  for (let i = 0; i < dt.getNumberOfRows(); i++) {
+  rows.push({
+    data:        dt.getFormattedValue(i, COL_DATA),
+    sala:        (dt.getFormattedValue(i, COL_SALA) || '').trim(),
+    categoria:   (dt.getFormattedValue(i, COL_CATEGORIA) || '').trim(),
+    urgencia:    (dt.getFormattedValue(i, COL_URGENCIA) || '').trim(),
+    descricao:   (dt.getFormattedValue(i, COL_DESCRICAO) || '').trim(),
+    solicitante: (dt.getFormattedValue(i, COL_SOLICITANTE) || '').trim()
+  });
+}
 
   if (rows.length === 0) {
     showError('A planilha está vazia ou os dados não foram encontrados.');
