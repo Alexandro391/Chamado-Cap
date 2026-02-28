@@ -279,12 +279,12 @@
 const SHEET_ID  = '1pshUNeBk-30YxnuYttnVDNioI5LXrHgGQfRY21pehng';
 const SHEET_TAB = 'Form_Responses';
 
-const COL_DATA        = 0;
-const COL_SALA        = 1;
-const COL_CATEGORIA   = 2;
-const COL_URGENCIA    = 3;
-const COL_DESCRICAO   = 4;
-const COL_SOLICITANTE = 5;
+const COL_DATA        = 0; // Coluna A (Carimbo de data/hora)
+const COL_SALA        = 1; // Coluna B (1) LOCAL/SALA)
+const COL_CATEGORIA   = 2; // Coluna C (2) CATEGORIA DO CHAMADO)
+const COL_URGENCIA    = 3; // Coluna D (3) NÍVEL DE URGÊNCIA)
+const COL_DESCRICAO   = 4; // Coluna E (4) DESCREVA O PROBLEMA)
+const COL_SOLICITANTE = 5; // Coluna F (5) NOME DO SOLICITANTE)
 
 const PALETA = ['#1E6B52','#3AAB85','#5DC9A5','#8BC4B0','#F4A261','#E05C5C','#888888','#B0C4BA'];
 
@@ -381,9 +381,9 @@ function drawCategorias(rows) {
   new google.visualization.BarChart(el).draw(data, options);
 }
 
-function drawUrgencia(rows) {
-  const count = {};
-  rows.forEach(r => { count[r.urgencia] = (count[r.urgencia] || 0) + 1; });
+['Alta', 'Média', 'Baixa'].forEach(u => { 
+  if (count[u]) data.addRow([u, count[u]]); 
+});
 
   const data = new google.visualization.DataTable();
   data.addColumn('string', 'Urgência');
