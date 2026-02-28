@@ -294,14 +294,12 @@ google.charts.setOnLoadCallback(fetchAndDraw);
 function fetchAndDraw() {
   const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?sheet=' + encodeURIComponent(SHEET_TAB) + '&tq=select%20*&headers=1';
   const query = new google.visualization.Query(url);
-  
-  // O SEGREDO ESTÁ NESTA LINHA ABAIXO:
-  query.send(handleQueryResponse); 
+  query.send(handleQueryResponse); // Aqui ele chama a função abaixo
 }
 
-function handleResponse(resp) {
+function handleQueryResponse(resp) {
   if (resp.isError()) {
-    showError('Não foi possível carregar os dados. Verifique se a planilha está compartilhada como "Qualquer pessoa com o link pode ver".<br><br>Detalhe: ' + resp.getMessage());
+    console.error('Erro na consulta: ' + resp.getMessage());
     return;
   }
 
@@ -309,27 +307,24 @@ function handleResponse(resp) {
   const rows = [];
 
   for (let i = 0; i < dt.getNumberOfRows(); i++) {
-  rows.push({
-    data:        dt.getFormattedValue(i, COL_DATA),
-    sala:        (dt.getFormattedValue(i, COL_SALA) || '').trim(),
-    categoria:   (dt.getFormattedValue(i, COL_CATEGORIA) || '').trim(),
-    urgencia:    (dt.getFormattedValue(i, COL_URGENCIA) || '').trim(),
-    descricao:   (dt.getFormattedValue(i, COL_DESCRICAO) || '').trim(),
-    solicitante: (dt.getFormattedValue(i, COL_SOLICITANTE) || '').trim()
-  });
-}
-
-  if (rows.length === 0) {
-    showError('A planilha está vazia ou os dados não foram encontrados.');
-    return;
+    rows.push({
+      data:        dt.getFormattedValue(i, COL_DATA),
+      sala:        (dt.getFormattedValue(i, COL_SALA) || '').trim(),
+      categoria:   (dt.getFormattedValue(i, COL_CATEGORIA) || '').trim(),
+      urgencia:    (dt.getFormattedValue(i, COL_URGENCIA) || '').trim(),
+      descricao:   (dt.getFormattedValue(i, COL_DESCRICAO) || '').trim(),
+      solicitante: (dt.getFormattedValue(i, COL_SOLICITANTE) || '').trim()
+    });
   }
 
-  updateKPIs(rows);
-  drawCategorias(rows);
-  drawUrgencia(rows);
-  drawSalas(rows);
-  drawTabela(rows);
-  updateTimestamp();
+  if (rows.length > 0) {
+    updateKPIs(rows);
+    drawCategorias(rows);
+    drawUrgencia(rows);
+    drawSalas(rows);
+    drawTabela(rows);
+    updateTimestamp();
+  }
 }
 
 function updateKPIs(rows) {
