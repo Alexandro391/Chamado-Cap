@@ -295,10 +295,10 @@ function fetchAndDraw() {
   const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?sheet=' + encodeURIComponent(SHEET_TAB) + '&tq=select%20*';
   const query = new google.visualization.Query(url);
  query.send(handleQueryResponse);
-  query.send();
+  
 }
 
-function handleResponse(resp) {
+function handleQueryResponse(resp) {
   if (resp.isError()) {
     showError('Não foi possível carregar os dados. Verifique se a planilha está compartilhada como "Qualquer pessoa com o link pode ver".<br><br>Detalhe: ' + resp.getMessage());
     return;
