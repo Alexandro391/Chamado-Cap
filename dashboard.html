@@ -405,7 +405,7 @@ function drawCategorias(rows) {
   const el = document.getElementById('chart-urgencia');
   el.style.height = '280px';
   new google.visualization.PieChart(el).draw(data, options);
-}
+} // <--- Esta chave fecha o gráfico de pizza
 
 function drawSalas(rows) {
   const count = {};
@@ -415,7 +415,6 @@ function drawSalas(rows) {
     count[sala] = (count[sala] || 0) + 1;
   });
   const sorted = Object.entries(count).sort((a,b) => b[1]-a[1]);
-
   const data = new google.visualization.DataTable();
   data.addColumn('string', 'Sala');
   data.addColumn('number', 'Chamados');
@@ -425,29 +424,30 @@ function drawSalas(rows) {
     const cor = val >= 4 ? '#1E6B52' : val >= 2 ? '#3AAB85' : '#5DC9A5';
     data.addRow([sala, val, 'color: ' + cor + '; opacity: 0.9', String(val)]);
   });
-
   const options = {
-    chartArea:  { left: 50, right: 30, top: 10, bottom: 60, width:'100%', height:'75%' },
+    chartArea: { left: 50, right: 30, top: 10, bottom: 60, width:'100%', height:'75%' },
     backgroundColor: 'transparent',
-    bar:        { groupWidth: '58%' },
-    legend:     { position: 'none' },
+    bar: { groupWidth: '58%' },
+    legend: { position: 'none' },
     annotations:{ alwaysOutside: true, textStyle: { fontSize: 12, bold: true, color: '#1A1A1A' } },
-    hAxis:      { textStyle: { color: '#0D1F17', fontSize: 12 }, slantedText: true, slantedTextAngle: 30 },
-    vAxis:      { gridlines: { color: '#EEF8F4' }, textStyle: { color: '#888', fontSize: 11 }, minValue: 0, format: '0' },
-    animation:  { startup: true, duration: 800, easing: 'out' },
+    hAxis: { textStyle: { color: '#0D1F17', fontSize: 12 }, slantedText: true, slantedTextAngle: 30 },
+    vAxis: { gridlines: { color: '#EEF8F4' }, textStyle: { color: '#888', fontSize: 11 }, minValue: 0, format: '0' },
+    animation: { startup: true, duration: 800, easing: 'out' },
   };
-
-  const el = document.getElementById('chart-salas');
-  el.style.height = '280px';
-  new google.visualization.ColumnChart(el).draw(data, options);
+  const elS = document.getElementById('chart-salas');
+  if(elS) {
+    elS.style.height = '280px';
+    new google.visualization.ColumnChart(elS).draw(data, options);
+  }
 }
 
 function drawTabela(rows) {
   const recentes = [...rows].reverse().slice(0, 10);
   document.getElementById('tabela-recentes').innerHTML = recentes.map(r => {
-    const urg = r.urgencia || '—';
-    const badge = urg === 'Alta' ? 'badge-alta' : urg === 'Média' ? 'badge-media' : 'badge-baixa';
-    const cat  = (r.categoria || '—').split('/')[0].trim();
+    const urg = (r.urgencia || '—').trim();
+    // Ajuste para aceitar "Média" com ou sem acento e maiúsculas
+    const badge = (urg.toUpperCase().includes('ALTA')) ? 'badge-alta' : (urg.toUpperCase().includes('M')) ? 'badge-media' : 'badge-baixa';
+    const cat = (r.categoria || '—').split('/')[0].trim();
     const desc = r.descricao && r.descricao.length > 40 ? r.descricao.slice(0,40) + '…' : (r.descricao || '—');
     const sala = (r.sala || '—').replace(/^(\d+)$/, 'Sala $1');
     return '<tr><td style="font-family:\'DM Mono\',monospace;font-size:11px;white-space:nowrap">' + r.data + '</td><td><strong>' + sala + '</strong></td><td>' + cat + '</td><td><span class="badge ' + badge + '">' + urg + '</span></td><td style="color:#5A7A6A">' + desc + '</td><td>' + (r.solicitante || '—') + '</td></tr>';
@@ -459,17 +459,18 @@ function updateTimestamp() {
   const hh = String(now.getHours()).padStart(2,'0');
   const mm = String(now.getMinutes()).padStart(2,'0');
   const ss = String(now.getSeconds()).padStart(2,'0');
-  document.getElementById('last-update').textContent = 'atualizado ' + hh + ':' + mm + ':' + ss;
-} // FECHA UPDATE TIMESTAMP
+  const elT = document.getElementById('last-update');
+  if(elT) elT.textContent = 'atualizado ' + hh + ':' + mm + ':' + ss;
+}
 
-// Esta é a última função do arquivo
-  function showError(msg) {
-    ['chart-categorias','chart-urgencia','chart-salas'].forEach(id => {
-      document.getElementById(id).innerHTML = '<div class="error-box">⚠️ ' + msg + '</div>';
-    });
-  }
+function showError(msg) {
+  ['chart-categorias','chart-urgencia','chart-salas'].forEach(id => {
+    const elE = document.getElementById(id);
+    if(elE) elE.innerHTML = '<div class="error-box">⚠️ ' + msg + '</div>';
+  });
+}
 
-  setInterval(fetchAndDraw, 30000);
+setInterval(fetchAndDraw, 30000);
 </script>
 </body>
 </html>
