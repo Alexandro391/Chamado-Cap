@@ -460,15 +460,16 @@ function updateTimestamp() {
   const mm = String(now.getMinutes()).padStart(2,'0');
   const ss = String(now.getSeconds()).padStart(2,'0');
   document.getElementById('last-update').textContent = 'atualizado ' + hh + ':' + mm + ':' + ss;
-}
+} // FECHA UPDATE TIMESTAMP
 
-function showError(msg) {
-  ['chart-categorias','chart-urgencia','chart-salas'].forEach(id => {
-    document.getElementById(id).innerHTML = '<div class="error-box">⚠️ ' + msg + '</div>';
-  });
-}
+// Esta é a última função do arquivo
+  function showError(msg) {
+    ['chart-categorias','chart-urgencia','chart-salas'].forEach(id => {
+      document.getElementById(id).innerHTML = '<div class="error-box">⚠️ ' + msg + '</div>';
+    });
+  }
 
-setInterval(fetchAndDraw, 30000);
+  setInterval(fetchAndDraw, 30000);
 </script>
 </body>
 </html>
