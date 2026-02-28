@@ -294,7 +294,7 @@ google.charts.setOnLoadCallback(fetchAndDraw);
 function fetchAndDraw() {
   const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?sheet=' + encodeURIComponent(SHEET_TAB) + '&tq=select%20*';
   const query = new google.visualization.Query(url);
-  query.setHandler(handleResponse);
+ query.send(handleQueryResponse);
   query.send();
 }
 
