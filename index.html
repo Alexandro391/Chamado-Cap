@@ -13,17 +13,20 @@ html{scroll-behavior:smooth;}
 
 /* ===== TOKENS ===== */
 :root{
-  --green:#3aab85;
-  --green-l:#5dc9a5;
-  --green-d:#1e6b52;
-  --green-dim:rgba(58,171,133,0.12);
-  --bg:#090f0c;
-  --bg2:#0d1a14;
-  --bg3:#111f18;
-  --text:#e8f5f0;
-  --text-dim:rgba(232,245,240,0.5);
-  --border:rgba(58,171,133,0.22);
-  --border-h:rgba(93,201,165,0.55);
+  /* Verde FMC — mais vivo e claro */
+  --green:#2cb87a;
+  --green-l:#3fd98e;
+  --green-d:#1a7a52;
+  --green-vd:#0d4a30;
+  --green-dim:rgba(44,184,122,0.13);
+  /* Fundo mais claro que antes */
+  --bg:#0c1a12;
+  --bg2:#112218;
+  --bg3:#163020;
+  --text:#edf7f2;
+  --text-dim:rgba(237,247,242,0.55);
+  --border:rgba(44,184,122,0.25);
+  --border-h:rgba(63,217,142,0.6);
   --danger:#e05252;
   --warn:#f0b429;
   --info:#5b8dee;
@@ -42,14 +45,14 @@ body{
 body::before{
   content:'';position:fixed;inset:0;
   background-image:
-    linear-gradient(rgba(58,171,133,0.05) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(58,171,133,0.05) 1px,transparent 1px);
+    linear-gradient(rgba(44,184,122,0.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(44,184,122,0.07) 1px,transparent 1px);
   background-size:44px 44px;
   pointer-events:none;z-index:0;
 }
 body::after{
   content:'';position:fixed;inset:0;
-  background:radial-gradient(ellipse 80% 40% at 50% 0%,rgba(58,171,133,0.1) 0%,transparent 60%);
+  background:radial-gradient(ellipse 90% 45% at 50% 0%,rgba(44,184,122,0.15) 0%,transparent 65%);
   pointer-events:none;z-index:0;
 }
 
@@ -66,15 +69,15 @@ body::after{
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.4}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(58,171,133,0.4)}50%{box-shadow:0 0 0 8px rgba(58,171,133,0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(44,184,122,0.4)}50%{box-shadow:0 0 0 8px rgba(44,184,122,0)}}
 
 /* ===== HEADER ===== */
 .header{
   position:sticky;top:0;z-index:200;
   width:100%;
-  background:rgba(9,15,12,0.93);
-  backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--border);
+  background:rgba(12,26,18,0.96);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(44,184,122,0.3);
 }
 .header::after{
   content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
@@ -91,7 +94,7 @@ body::after{
   background:linear-gradient(135deg,var(--green-d),var(--green));
   border:1.5px solid rgba(93,201,165,0.5);
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 0 16px rgba(58,171,133,0.3);
+  box-shadow:0 0 16px rgba(44,184,122,0.3);
   overflow:hidden;
 }
 .logo-circle svg{width:100%;height:100%;}
@@ -113,7 +116,7 @@ body::after{
 .nav-link:hover{color:var(--green-l);background:var(--green-dim);}
 .status-pill{
   display:flex;align-items:center;gap:7px;
-  background:rgba(58,171,133,0.1);border:1px solid var(--border);
+  background:rgba(44,184,122,0.12);border:1px solid rgba(44,184,122,0.35);
   border-radius:20px;padding:5px 13px;flex-shrink:0;
 }
 .status-dot{
@@ -149,7 +152,7 @@ body::after{
   width:100%;padding:0 1.5rem;
   max-width:1400px;margin:0 auto;
   position:relative;z-index:1;
-  margin-top:1rem;
+  margin-top:0.85rem;
 }
 .aw-card{
   background:var(--bg2);border:1px solid var(--border);
@@ -179,7 +182,7 @@ body::after{
   animation:fadeDown 0.6s ease both;
 }
 .title-banner-inner{
-  background:var(--bg2);border:1px solid var(--border);
+  background:rgba(17,34,24,0.92);border:1px solid rgba(44,184,122,0.3);
   border-radius:var(--r3);padding:28px 36px;
   position:relative;overflow:hidden;
 }
@@ -193,7 +196,7 @@ body::after{
   font-family:'Bebas Neue',sans-serif;
   font-size:90px;letter-spacing:-2px;
   color:transparent;
-  -webkit-text-stroke:1px rgba(58,171,133,0.12);
+  -webkit-text-stroke:1px rgba(44,184,122,0.12);
   pointer-events:none;line-height:1;
 }
 .title-label{
@@ -204,7 +207,7 @@ body::after{
   font-family:'Bebas Neue',sans-serif;
   font-size:clamp(2.2rem,5vw,3.5rem);
   letter-spacing:3px;color:#fff;line-height:1;
-  text-shadow:0 0 30px rgba(58,171,133,0.35);
+  text-shadow:0 0 30px rgba(44,184,122,0.35);
 }
 .title-main span{color:var(--green-l);}
 .title-sub{
@@ -220,7 +223,7 @@ body::after{
 
 /* ===== MAIN ===== */
 .main{
-  max-width:1400px;margin:1.5rem auto;
+  max-width:1400px;margin:1.25rem auto 0;
   padding:0 1.5rem 4rem;
   display:grid;gap:1.25rem;
   position:relative;z-index:1;
@@ -228,8 +231,8 @@ body::after{
 
 /* ===== SECTION CARD ===== */
 .card{
-  background:var(--bg2);
-  border:1px solid var(--border);
+  background:rgba(17,34,24,0.9);
+  border:1px solid rgba(44,184,122,0.22);
   border-radius:var(--r3);
   padding:1.75rem;
   position:relative;overflow:hidden;
@@ -256,7 +259,7 @@ body::after{
 .card-ghost{
   position:absolute;right:20px;top:50%;transform:translateY(-50%);
   font-family:'Bebas Neue',sans-serif;font-size:80px;letter-spacing:-2px;
-  color:transparent;-webkit-text-stroke:1px rgba(58,171,133,0.07);
+  color:transparent;-webkit-text-stroke:1px rgba(44,184,122,0.07);
   pointer-events:none;line-height:1;
 }
 
@@ -279,12 +282,12 @@ body::after{
   grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
 }
 .member-card{
-  background:rgba(255,255,255,0.02);
-  border:1px solid var(--border);border-radius:var(--r2);
+  background:rgba(44,184,122,0.05);
+  border:1px solid rgba(44,184,122,0.18);border-radius:var(--r2);
   padding:0.85rem;display:flex;align-items:center;gap:0.75rem;
   transition:all 0.2s;cursor:default;position:relative;
 }
-.member-card:hover{background:var(--green-dim);border-color:var(--border-h);}
+.member-card:hover{background:rgba(44,184,122,0.12);border-color:var(--border-h);}
 .member-avatar{
   width:38px;height:38px;border-radius:50%;flex-shrink:0;
   background:linear-gradient(135deg,var(--green-d),var(--green));
@@ -301,7 +304,7 @@ body::after{
 .rb-pres{background:rgba(240,180,41,0.15);color:#f0b429;border:1px solid rgba(240,180,41,0.3);}
 .rb-vice{background:rgba(93,201,165,0.12);color:var(--green-l);border:1px solid rgba(93,201,165,0.25);}
 .rb-sec{background:rgba(91,141,238,0.12);color:#5b8dee;border:1px solid rgba(91,141,238,0.25);}
-.rb-mem{background:rgba(58,171,133,0.08);color:var(--text-dim);border:1px solid var(--border);}
+.rb-mem{background:rgba(44,184,122,0.08);color:var(--text-dim);border:1px solid var(--border);}
 .edit-fab{
   position:absolute;top:6px;right:6px;
   background:none;border:none;cursor:pointer;
@@ -313,10 +316,10 @@ body::after{
 .ev-list{display:flex;flex-direction:column;gap:0.5rem;}
 .ev-item{
   display:flex;align-items:center;gap:0.85rem;
-  background:rgba(255,255,255,0.02);border:1px solid var(--border);
+  background:rgba(44,184,122,0.05);border:1px solid rgba(44,184,122,0.18);
   border-radius:var(--r2);padding:0.75rem 0.85rem;transition:all 0.2s;
 }
-.ev-item:hover{background:var(--green-dim);border-color:var(--border-h);}
+.ev-item:hover{background:rgba(44,184,122,0.12);border-color:var(--border-h);}
 .ev-date{
   min-width:48px;text-align:center;flex-shrink:0;
   background:var(--green-dim);border:1px solid var(--border);
@@ -331,7 +334,7 @@ body::after{
   padding:2px 8px;border-radius:100px;text-transform:uppercase;
   flex-shrink:0;margin-left:auto;
 }
-.eb-r{background:rgba(58,171,133,0.12);color:var(--green-l);border:1px solid rgba(58,171,133,0.25);}
+.eb-r{background:rgba(44,184,122,0.12);color:var(--green-l);border:1px solid rgba(44,184,122,0.25);}
 .eb-i{background:rgba(240,180,41,0.12);color:#f0b429;border:1px solid rgba(240,180,41,0.25);}
 .eb-t{background:rgba(91,141,238,0.12);color:#5b8dee;border:1px solid rgba(91,141,238,0.25);}
 .eb-s{background:rgba(224,82,82,0.12);color:#e05252;border:1px solid rgba(224,82,82,0.25);}
@@ -366,7 +369,7 @@ body::after{
 }
 .ff input:focus,.ff textarea:focus,.ff select:focus{
   outline:none;border-color:var(--green);
-  background:rgba(58,171,133,0.05);
+  background:rgba(44,184,122,0.05);
 }
 .ff textarea{resize:vertical;min-height:90px;}
 .ff select option{background:var(--bg2);}
@@ -380,7 +383,7 @@ body::after{
   font-family:'Bebas Neue',sans-serif;letter-spacing:2px;font-size:1rem;
   cursor:pointer;transition:all 0.2s;width:100%;
 }
-.btn-prim:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(58,171,133,0.3);}
+.btn-prim:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(44,184,122,0.3);}
 .ouvidoria-card{
   background:rgba(91,141,238,0.07);
   border:1px solid rgba(91,141,238,0.2);
@@ -399,11 +402,11 @@ body::after{
 .doc-nr5-item{
   display:flex;align-items:center;gap:0.85rem;
   padding:0.75rem 0.9rem;border-radius:var(--r2);
-  border:1px solid var(--border);background:rgba(255,255,255,0.02);
+  border:1px solid rgba(44,184,122,0.18);background:rgba(44,184,122,0.04);
   transition:all 0.2s;margin-bottom:0.4rem;
 }
-.doc-nr5-item:hover{background:var(--green-dim);border-color:var(--border-h);}
-.doc-nr5-item.linked{border-color:rgba(58,171,133,0.4);}
+.doc-nr5-item:hover{background:rgba(44,184,122,0.11);border-color:var(--border-h);}
+.doc-nr5-item.linked{border-color:rgba(44,184,122,0.4);}
 .doc-ico{font-size:1.2rem;flex-shrink:0;}
 .doc-name{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:0.9rem;color:var(--text);}
 .doc-nr5-item.linked .doc-name{color:var(--green-l);}
@@ -412,10 +415,10 @@ body::after{
 .doc-open-btn{
   font-family:'Bebas Neue',sans-serif;letter-spacing:1.5px;font-size:0.78rem;
   padding:0.3rem 0.85rem;border-radius:var(--r1);
-  border:1px solid rgba(58,171,133,0.35);color:var(--green-l);
+  border:1px solid rgba(44,184,122,0.35);color:var(--green-l);
   text-decoration:none;background:var(--green-dim);transition:all 0.2s;white-space:nowrap;
 }
-.doc-open-btn:hover{background:rgba(58,171,133,0.2);border-color:var(--green);}
+.doc-open-btn:hover{background:rgba(44,184,122,0.2);border-color:var(--green);}
 .doc-no-link{
   font-size:9px;font-weight:700;letter-spacing:1.5px;
   color:var(--text-dim);text-transform:uppercase;opacity:0.45;
@@ -474,7 +477,7 @@ body::after{
   font-family:'Bebas Neue',sans-serif;letter-spacing:1.5px;font-size:0.9rem;
   cursor:pointer;transition:all 0.2s;
 }
-.btn-save:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(58,171,133,0.3);}
+.btn-save:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(44,184,122,0.3);}
 .btn-danger{
   background:rgba(224,82,82,0.1);border:1px solid rgba(224,82,82,0.3);
   color:#e05252;border-radius:var(--r2);padding:0.65rem 1.25rem;
@@ -528,15 +531,45 @@ body:not(.admin-mode) .upload-section{display:none!important;}
 }
 
 /* ===== MOBILE ===== */
-@media(max-width:600px){
+/* ── MOBILE ── */
+@media(max-width:680px){
+  /* Header compacto */
   .header-nav{display:none;}
+  .header-inner{padding:0 0.85rem;height:54px;}
+  .logo-circle{width:36px;height:36px;}
+  .logo-text .brand{font-size:1.1rem;}
+  .status-pill{padding:4px 10px;}
   .status-pill .status-text{display:none;}
-  .title-banner-inner{padding:20px 20px;}
-  .title-banner-inner::after{font-size:60px;right:14px;}
-  .card{padding:1.25rem;}
+  .admin-btn{width:34px;height:34px;font-size:0.9rem;}
+
+  /* Title Banner */
+  .title-banner{padding:0 0.85rem;margin-top:0.85rem;}
+  .title-banner-inner{padding:18px 18px 18px;}
+  .title-banner-inner::after{font-size:52px;right:12px;top:55%;}
+  .title-main{font-size:1.9rem;}
+  .hero-stats{gap:1rem;margin-top:1rem;}
+  .stat-num{font-size:1.4rem;}
+
+  /* Awareness */
+  .awareness{padding:0 0.85rem;}
+
+  /* Main */
+  .main{padding:0 0.85rem 4rem;gap:0.85rem;}
+  .card{padding:1.1rem;}
+
+  /* Members — 1 coluna no mobile para não cortar */
+  .members-grid{grid-template-columns:1fr;}
+  .member-card{padding:0.75rem;}
+
+  /* Agenda — 1 coluna */
+  .two-col{grid-template-columns:1fr!important;}
+
+  /* Relatos */
   .rtype-grid{grid-template-columns:1fr 1fr;}
-  .members-grid{grid-template-columns:1fr 1fr;}
-  .hero-stats{gap:1.25rem;}
+
+  /* Docs */
+  .doc-nr5-item{padding:0.6rem 0.7rem;gap:0.6rem;}
+  .doc-name{font-size:0.82rem;}
 }
 </style>
 </head>
@@ -550,11 +583,11 @@ body:not(.admin-mode) .upload-section{display:none!important;}
     <a class="logo-area" href="#">
       <div class="logo-circle">
         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="50" cy="50" r="48" fill="#1e6b52"/>
-          <path d="M50 15 L74 26 L74 52 Q74 68 50 82 Q26 68 26 52 L26 26 Z" fill="none" stroke="#5dc9a5" stroke-width="3.5"/>
-          <circle cx="50" cy="36" r="7" fill="#5dc9a5"/>
-          <path d="M35 58 Q35 47 50 47 Q65 47 65 58" fill="#5dc9a5"/>
-          <polyline points="44,55 48,59 56,51" fill="none" stroke="#0d1a14" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="50" cy="50" r="48" fill="#1a7a52"/>
+          <path d="M50 15 L74 26 L74 52 Q74 68 50 82 Q26 68 26 52 L26 26 Z" fill="none" stroke="#3fd98e" stroke-width="3.5"/>
+          <circle cx="50" cy="36" r="7" fill="#3fd98e"/>
+          <path d="M35 58 Q35 47 50 47 Q65 47 65 58" fill="#3fd98e"/>
+          <polyline points="44,55 48,59 56,51" fill="none" stroke="#112218" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
       <div class="logo-text">
@@ -1052,7 +1085,7 @@ function showSpinner(show){
   let el=document.getElementById('fb-loading');
   if(!el){
     el=document.createElement('div');el.id='fb-loading';
-    el.innerHTML=`<div style="position:fixed;inset:0;z-index:8999;background:rgba(9,15,12,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;"><div style="width:44px;height:44px;border:3px solid rgba(58,171,133,0.2);border-top-color:#3aab85;border-radius:50%;animation:spin 0.8s linear infinite;"></div><div style="font-family:'Bebas Neue',sans-serif;font-size:0.9rem;letter-spacing:2px;color:rgba(255,255,255,0.4);">CARREGANDO DADOS…</div></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
+    el.innerHTML=`<div style="position:fixed;inset:0;z-index:8999;background:rgba(12,26,18,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;"><div style="width:44px;height:44px;border:3px solid rgba(44,184,122,0.2);border-top-color:#2cb87a;border-radius:50%;animation:spin 0.8s linear infinite;"></div><div style="font-family:'Bebas Neue',sans-serif;font-size:0.9rem;letter-spacing:2px;color:rgba(255,255,255,0.4);">CARREGANDO DADOS…</div></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
     document.body.appendChild(el);
   }
   el.style.display=show?'block':'none';
@@ -1411,7 +1444,7 @@ function nextTip(){showTip((curTip+1)%TIPS.length);}
     bubbles.forEach((b,i)=>{
       ctx.beginPath();
       ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
-      ctx.strokeStyle=`rgba(58,171,133,${b.o})`;
+      ctx.strokeStyle=`rgba(44,184,122,${b.o})`;
       ctx.lineWidth=1;
       ctx.stroke();
       b.x+=b.vx;b.y+=b.vy;
