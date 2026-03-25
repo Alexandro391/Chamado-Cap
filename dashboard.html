@@ -528,50 +528,67 @@ function drawCategorias(rows){
 // 1. Altura definida no HTML (não zerada em JS)
 // 2. innerHTML limpo antes de new PieChart() — sem canvas fantasma
 // 3. chartArea com height explícito para não colapsar
-function drawUrgencia(rows){
+function drawUrgencia(rows) {
   const el = document.getElementById('chart-urgencia');
-  
-  // 1. LIMPEZA: Remove o spinner de "Carregando..." e evita sobreposição
-  if (el) {
-    el.innerHTML = ''; 
-  } else {
-    return; 
-  }
+  if (!el) return;
 
-  // 2. CONTAGEM: Garante que os dados existem e são contados corretamente
-  const count = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
+  // 1. LIMPEZA E FEEDBACK INICIAL
+  // Remove o spinner e prepara o terreno para o novo gráfico
+  el.innerHTML = ''; 
+
+  // 2. PROCESSAMENTO DE DADOS COM VALIDAÇÃO
+  const stats = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
+  let hasData = false;
+
   rows.forEach(r => {
-    if (r.urgencia && count[r.urgencia] !== undefined) {
-      count[r.urgencia]++;
+    // Tratamento para evitar erro caso a coluna de urgência esteja vazia ou com texto diferente
+    const urg = (r.urgencia || '').trim();
+    if (stats.hasOwnProperty(urg)) {
+      stats[urg]++;
+      hasData = true;
     }
   });
 
-  // 3. VERIFICAÇÃO: Se o filtro não encontrar nada, avisa o utilizador
-  if(count['Alta'] === 0 && count['Média'] === 0 && count['Baixa'] === 0){
-    el.innerHTML = '<div class="empty-state" style="padding:20px; text-align:center; color:#888;">Sem dados de urgência para exibir</div>';
+  // 3. MENSAGENS DE ESTADO (Feedback para o usuário)
+  if (!hasData) {
+    el.innerHTML = `
+      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--sub); text-align:center; padding:20px;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom:10px; opacity:0.5">
+          <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p style="margin:0; font-weight:500;">Nenhum chamado encontrado</p>
+        <small style="opacity:0.7">Tente ajustar os filtros de busca</small>
+      </div>`;
     return;
   }
 
-  const data = new google.visualization.DataTable();
-  data.addColumn('string', 'Urgência');
-  data.addColumn('number', 'Chamados');
-  
-  // Adiciona as fatias apenas se houver valores > 0
-  if(count['Alta'] > 0)  data.addRow(['Alta',  count['Alta']]);
-  if(count['Média'] > 0) data.addRow(['Média', count['Média']]);
-  if(count['Baixa'] > 0) data.addRow(['Baixa', count['Baixa']]);
+  // 4. LÓGICA DE DESENHO REFINADA
+  const data = google.visualization.arrayToDataTable([
+    ['Urgência', 'Quantidade'],
+    ['Alta',  stats['Alta']],
+    ['Média', stats['Média']],
+    ['Baixa', stats['Baixa']]
+  ]);
 
-  // 4. DESENHO: Configurações de cores fixas e estilo rosca
-  const chart = new google.visualization.PieChart(el);
-  chart.draw(data, {
-    chartArea: { left: 10, right: 10, top: 10, bottom: 50, width: '100%', height: '80%' },
+  const options = {
+    pieHole: 0.45,
     backgroundColor: 'transparent',
-    colors: ['#E05C5C', '#F4A261', '#3AAB85'], // Vermelho, Laranja, Verde
-    legend: { position: 'bottom', textStyle: { color: '#0D1F17', fontSize: 12 } },
-    pieHole: 0.42,
+    // Cores vinculadas à posição (Alta=0, Média=1, Baixa=2)
+    colors: ['#E05C5C', '#F4A261', '#3AAB85'], 
+    legend: { 
+      position: 'bottom', 
+      textStyle: { color: '#0D1F17', fontSize: 12, fontName: 'DM Sans' } 
+    },
+    chartArea: { width: '100%', height: '80%', top: 10, bottom: 50 },
     pieSliceBorderColor: 'white',
-    animation: { startup: true, duration: 500, easing: 'out' }
-  });
+    pieSliceTextStyle: { color: 'white', fontSize: 12, bold: true },
+    // Tooltip aprimorado para mostrar valor absoluto e porcentagem
+    tooltip: { text: 'both', showColorCode: true },
+    animation: { startup: true, duration: 600, easing: 'out' }
+  };
+
+  const chart = new google.visualization.PieChart(el);
+  chart.draw(data, options);
 }
 function drawTimeline(rows){
   const el=document.getElementById('chart-timeline');
