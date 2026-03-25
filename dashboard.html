@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CAP · Dashboard de Chamados v2</title>
+<title>CAP · Dashboard de Chamados v3</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <style>
@@ -285,7 +285,6 @@ tbody tr:last-child { border-bottom: none; }
 .badge-concluido { background: #E8F7F1; color: #1A7A52; }
 
 .status-select {
-  background: transparent;
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 4px 8px;
@@ -294,9 +293,13 @@ tbody tr:last-child { border-bottom: none; }
   color: var(--text);
   cursor: pointer;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, background 0.2s;
 }
 .status-select:focus { border-color: var(--g3); }
+/* FIX BUG 3: classes aplicadas via JS, background não pode ser 'transparent' */
+.status-select.badge-pendente  { background: #FFF4E5; color: #C47A1A; border-color: #f4c97a; }
+.status-select.badge-atendendo { background: #E8F0FF; color: #3B5CC4; border-color: #9aafe0; }
+.status-select.badge-concluido { background: #E8F7F1; color: #1A7A52; border-color: #7abfa0; }
 
 /* Pagination */
 .pagination {
@@ -607,8 +610,10 @@ const ROWS_PER_PAGE = 15;
 /* ── STATE ── */
 let allRows = [];
 let filteredRows = [];
-let statusMap = {}; // protocolo -> status (localStorage)
+let statusMap = {};
 let currentPage = 1;
+// FIX BUG 1 + 2: carregar statusMap imediatamente, antes de qualquer uso
+loadStatusMap();
 
 /* ── PIN ── */
 let pinBuffer = '';
@@ -637,27 +642,27 @@ function updatePinDots() {
 
 function checkPin() {
   if (pinBuffer === PIN_CODE) {
-    document.getElementById('pin-overlay').style.transition = 'opacity 0.5s';
-    document.getElementById('pin-overlay').style.opacity = '0';
-    setTimeout(() => { document.getElementById('pin-overlay').style.display = 'none'; }, 500);
-    loadStatusMap();
+    const overlay = document.getElementById('pin-overlay');
+    overlay.style.transition = 'opacity 0.5s';
+    overlay.style.opacity = '0';
+    setTimeout(() => { overlay.style.display = 'none'; }, 500);
   } else {
     document.getElementById('pin-error').textContent = 'PIN incorreto. Tente novamente.';
     pinBuffer = '';
     updatePinDots();
     const dots = document.getElementById('pin-dots');
     dots.style.animation = 'none';
-    dots.offsetHeight; // reflow
+    dots.offsetHeight;
     dots.style.animation = 'shake 0.4s ease';
   }
 }
 
-// Shake animation for wrong PIN
 const style = document.createElement('style');
 style.textContent = '@keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }';
 document.head.appendChild(style);
 
 /* ── STATUS (localStorage) ── */
+// FIX BUG 2: loadStatusMap chamado no topo, não depende mais do PIN
 function loadStatusMap() {
   try { statusMap = JSON.parse(localStorage.getItem('cap_status') || '{}'); } catch(e) { statusMap = {}; }
 }
@@ -670,16 +675,30 @@ function getStatus(proto) {
   return statusMap[proto] || 'Pendente';
 }
 
-function setStatus(proto, val) {
+// FIX BUG 3: setStatus atualiza apenas o select clicado sem re-renderizar a tabela inteira
+function setStatus(proto, val, selectEl) {
   statusMap[proto] = val;
   saveStatusMap();
-  applyFilters();
+
+  // Atualiza a classe visual do select diretamente, sem recriar a tabela
+  if (selectEl) {
+    selectEl.className = 'status-select ' + getStatusClass(val);
+  }
+
+  // Atualiza o KPI de abertos sem mexer na tabela
+  updateKPIs(allRows);
+
   showToast('Status atualizado: ' + val);
+}
+
+function getStatusClass(st) {
+  if (st === 'Concluído')       return 'badge-concluido';
+  if (st === 'Em atendimento')  return 'badge-atendendo';
+  return 'badge-pendente';
 }
 
 /* ── PROTOCOL GENERATOR ── */
 function makeProto(index, dateStr) {
-  // CAP-ANO-NNNN baseado no índice da linha
   let year = '2026';
   if (dateStr) {
     const m = dateStr.match(/(\d{4})/);
@@ -688,12 +707,40 @@ function makeProto(index, dateStr) {
   return 'CAP-' + year + '-' + String(index + 1).padStart(4, '0');
 }
 
+/* ── FIX BUG 4: parser de data robusto para DD/MM/YYYY ou DD/MM/YYYY HH:MM:SS ── */
+function parseRowDate(dateStr) {
+  if (!dateStr) return null;
+  // Aceita "DD/MM/YYYY" ou "DD/MM/YYYY HH:MM:SS" ou "D/M/YYYY"
+  const m = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (!m) return null;
+  return new Date(parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1]));
+}
+
+function isSameDay(d, ref) {
+  return d.getFullYear() === ref.getFullYear() &&
+         d.getMonth()    === ref.getMonth()    &&
+         d.getDate()     === ref.getDate();
+}
+
 /* ── GOOGLE CHARTS LOAD ── */
+// FIX BUG 1: chartsReady garante que drawUrgencia só roda após Google Charts carregar
+let chartsReady = false;
+let pendingRows  = null;
+
 google.charts.load('current', { packages: ['corechart', 'line'], language: 'pt' });
-google.charts.setOnLoadCallback(fetchAndDraw);
+google.charts.setOnLoadCallback(() => {
+  chartsReady = true;
+  // Se os dados já chegaram antes do Google Charts estar pronto, desenha agora
+  if (pendingRows !== null) {
+    drawAllCharts(pendingRows);
+    pendingRows = null;
+  }
+  fetchAndDraw();
+});
 
 function fetchAndDraw() {
-  const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?sheet=' + encodeURIComponent(SHEET_TAB) + '&tq=select%20*&headers=1';
+  const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID +
+              '/gviz/tq?sheet=' + encodeURIComponent(SHEET_TAB) + '&tq=select%20*&headers=1';
   const query = new google.visualization.Query(url);
   query.send(handleQueryResponse);
 }
@@ -727,19 +774,32 @@ function handleQueryResponse(resp) {
   populateCatFilter();
   applyFilters();
   updateKPIs(rows);
+
+  if (chartsReady) {
+    drawAllCharts(rows);
+  } else {
+    pendingRows = rows;
+  }
+
+  updateTimestamp();
+}
+
+function drawAllCharts(rows) {
   drawCategorias(rows);
   drawUrgencia(rows);
   drawTimeline(rows);
   drawSalas(rows);
-  updateTimestamp();
 }
 
 /* ── POPULATE CATEGORY FILTER ── */
 function populateCatFilter() {
   const cats = [...new Set(allRows.map(r => (r.categoria || 'Outro').split('/')[0].trim()))].sort();
   const sel = document.getElementById('f-cat');
+  // preserva a seleção atual
+  const current = sel.value;
   sel.innerHTML = '<option value="">Todas</option>';
   cats.forEach(c => { sel.innerHTML += '<option value="' + c + '">' + c + '</option>'; });
+  if (current) sel.value = current;
 }
 
 /* ── FILTERS ── */
@@ -750,25 +810,28 @@ function applyFilters() {
   const catFilter = document.getElementById('f-cat').value;
   const busca     = document.getElementById('f-busca').value.toLowerCase();
 
-  const now = new Date();
-  const todayStr = now.toLocaleDateString('pt-BR');
-  const weekAgo  = new Date(now); weekAgo.setDate(now.getDate() - 7);
-  const monthAgo = new Date(now); monthAgo.setDate(1);
+  const now      = new Date();
+  // FIX BUG 4: início da semana (segunda) e início do mês via Date corretamente
+  const weekStart = new Date(now);
+  const dayOfWeek = now.getDay(); // 0=dom
+  const diffToMon = (dayOfWeek === 0 ? -6 : 1 - dayOfWeek);
+  weekStart.setDate(now.getDate() + diffToMon);
+  weekStart.setHours(0, 0, 0, 0);
+
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
   filteredRows = allRows.filter(r => {
     // Período
     if (periodo !== 'todos') {
-      const parts = r.data.match(/(\d+)\/(\d+)\/(\d+)/);
-      if (parts) {
-        const d = new Date(parts[3], parts[2]-1, parts[1]);
-        if (periodo === 'hoje' && r.data.split(' ')[0] !== todayStr) return false;
-        if (periodo === 'semana' && d < weekAgo) return false;
-        if (periodo === 'mes'   && d < monthAgo) return false;
-      }
+      const d = parseRowDate(r.data);
+      if (!d) return false;
+      if (periodo === 'hoje'   && !isSameDay(d, now))   return false;
+      if (periodo === 'semana' && d < weekStart)         return false;
+      if (periodo === 'mes'    && d < monthStart)        return false;
     }
     // Urgência
     if (urgencia && r.urgencia !== urgencia) return false;
-    // Status
+    // FIX BUG 3 (parte do filtro): status lido do map atualizado
     if (status && getStatus(r.proto) !== status) return false;
     // Categoria
     if (catFilter && (r.categoria || '').split('/')[0].trim() !== catFilter) return false;
@@ -781,7 +844,8 @@ function applyFilters() {
   });
 
   currentPage = 1;
-  document.getElementById('filter-count').textContent = filteredRows.length + ' registro' + (filteredRows.length !== 1 ? 's' : '');
+  document.getElementById('filter-count').textContent =
+    filteredRows.length + ' registro' + (filteredRows.length !== 1 ? 's' : '');
   renderTable();
   renderPagination();
 }
@@ -797,11 +861,12 @@ function clearFilters() {
 
 /* ── TABLE ── */
 function renderTable() {
-  const start = (currentPage - 1) * ROWS_PER_PAGE;
+  const start    = (currentPage - 1) * ROWS_PER_PAGE;
   const pageRows = [...filteredRows].reverse().slice(start, start + ROWS_PER_PAGE);
 
   if (pageRows.length === 0) {
-    document.getElementById('tabela-recentes').innerHTML = '<tr><td colspan="9" class="empty-state">Nenhum chamado encontrado com os filtros aplicados.</td></tr>';
+    document.getElementById('tabela-recentes').innerHTML =
+      '<tr><td colspan="9" class="empty-state">Nenhum chamado encontrado com os filtros aplicados.</td></tr>';
     return;
   }
 
@@ -809,12 +874,14 @@ function renderTable() {
     const urg    = r.urgencia || '—';
     const ub     = urg === 'Alta' ? 'badge-alta' : urg === 'Média' ? 'badge-media' : 'badge-baixa';
     const cat    = (r.categoria || '—').split('/')[0].trim();
-    const desc   = r.descricao && r.descricao.length > 50 ? r.descricao.slice(0,50) + '…' : (r.descricao || '—');
+    const desc   = r.descricao && r.descricao.length > 50
+                    ? r.descricao.slice(0, 50) + '…' : (r.descricao || '—');
     const sala   = (r.sala || '—').replace(/^(\d+)$/, 'Sala $1');
     const st     = getStatus(r.proto);
-    const stOpts = ['Pendente','Em atendimento','Concluído'];
-    const stClass = st === 'Concluído' ? 'badge-concluido' : st === 'Em atendimento' ? 'badge-atendendo' : 'badge-pendente';
+    const stOpts = ['Pendente', 'Em atendimento', 'Concluído'];
+    const stClass = getStatusClass(st);
 
+    // FIX BUG 3: passa 'this' ao onchange para atualizar só o select clicado
     return `<tr>
       <td><span class="proto-badge">${r.proto}</span></td>
       <td style="font-family:'DM Mono',monospace;font-size:11px;white-space:nowrap;color:var(--sub)">${r.data}</td>
@@ -822,8 +889,8 @@ function renderTable() {
       <td>${cat}</td>
       <td><span class="badge ${ub}">${urg}</span></td>
       <td>
-        <select class="status-select ${stClass}" onchange="setStatus('${r.proto}', this.value)">
-          ${stOpts.map(o => `<option value="${o}" ${o===st?'selected':''}>${o}</option>`).join('')}
+        <select class="status-select ${stClass}" onchange="setStatus('${r.proto}', this.value, this)">
+          ${stOpts.map(o => `<option value="${o}" ${o === st ? 'selected' : ''}>${o}</option>`).join('')}
         </select>
       </td>
       <td style="color:var(--sub);max-width:200px" title="${r.descricao}">${desc}</td>
@@ -842,8 +909,8 @@ function renderPagination() {
   let btns = '';
   for (let i = 1; i <= pages; i++) {
     if (i === 1 || i === pages || Math.abs(i - currentPage) <= 1) {
-      btns += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
-    } else if (btns.slice(-3) !== '...') {
+      btns += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+    } else if (!btns.endsWith('…</span>')) {
       btns += `<span style="padding:6px 4px;color:var(--sub)">…</span>`;
     }
   }
@@ -854,9 +921,9 @@ function renderPagination() {
   document.getElementById('pagination').innerHTML = `
     <span class="page-info">Exibindo ${start}–${end} de ${total}</span>
     <div class="page-btns">
-      <button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>
+      <button class="page-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹</button>
       ${btns}
-      <button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>›</button>
+      <button class="page-btn" onclick="goPage(${currentPage + 1})" ${currentPage === pages ? 'disabled' : ''}>›</button>
     </div>`;
 }
 
@@ -874,27 +941,28 @@ function updateKPIs(rows) {
   const total = rows.length;
   const alta  = rows.filter(r => r.urgencia === 'Alta').length;
 
-  // Hoje
-  const todayStr = new Date().toLocaleDateString('pt-BR');
-  const hoje = rows.filter(r => r.data && r.data.startsWith(todayStr)).length;
+  // FIX BUG 4: usa parseRowDate para "hoje"
+  const now   = new Date();
+  const hoje  = rows.filter(r => {
+    const d = parseRowDate(r.data);
+    return d && isSameDay(d, now);
+  }).length;
 
-  // Abertos (Pendente + Em atendimento)
   const abertos = rows.filter(r => {
     const st = getStatus(r.proto);
     return st === 'Pendente' || st === 'Em atendimento';
   }).length;
 
-  // Top categoria
   const catCount = {};
   rows.forEach(r => { catCount[r.categoria] = (catCount[r.categoria] || 0) + 1; });
-  const topCat = Object.entries(catCount).sort((a,b) => b[1]-a[1])[0] || ['—', 0];
+  const topCat     = Object.entries(catCount).sort((a, b) => b[1] - a[1])[0] || ['—', 0];
   const topCatShort = (topCat[0] || '').split('/')[0].trim();
 
   document.getElementById('kpi-total').textContent      = total;
   document.getElementById('kpi-hoje').textContent       = hoje;
   document.getElementById('kpi-hoje-note').textContent  = hoje === 0 ? 'nenhum ainda hoje' : 'abertos hoje';
   document.getElementById('kpi-alta').textContent       = alta;
-  document.getElementById('kpi-alta-pct').textContent   = total ? Math.round(alta/total*100) + '% dos chamados' : '—';
+  document.getElementById('kpi-alta-pct').textContent   = total ? Math.round(alta / total * 100) + '% dos chamados' : '—';
   document.getElementById('kpi-abertos').textContent    = abertos;
   document.getElementById('kpi-top-cat').textContent    = topCatShort;
   document.getElementById('kpi-top-cat-n').textContent  = topCat[1] + ' chamados';
@@ -907,19 +975,19 @@ function drawCategorias(rows) {
     const label = (r.categoria || 'Outro').split('/')[0].trim();
     count[label] = (count[label] || 0) + 1;
   });
-  const sorted = Object.entries(count).sort((a,b) => b[1]-a[1]);
+  const sorted = Object.entries(count).sort((a, b) => b[1] - a[1]);
 
   const data = new google.visualization.DataTable();
   data.addColumn('string', 'Categoria');
   data.addColumn('number', 'Chamados');
-  data.addColumn({type:'string', role:'style'});
-  data.addColumn({type:'string', role:'annotation'});
+  data.addColumn({ type: 'string', role: 'style' });
+  data.addColumn({ type: 'string', role: 'annotation' });
   sorted.forEach(([cat, val], i) => {
     data.addRow([cat, val, 'color: ' + PALETA[i % PALETA.length] + '; opacity: 0.9', String(val)]);
   });
 
   const options = {
-    chartArea:   { left: 140, right: 60, top: 10, bottom: 10, width:'100%', height:'85%' },
+    chartArea:   { left: 140, right: 60, top: 10, bottom: 10, width: '100%', height: '85%' },
     backgroundColor: 'transparent',
     bar:         { groupWidth: '62%' },
     legend:      { position: 'none' },
@@ -934,20 +1002,28 @@ function drawCategorias(rows) {
   new google.visualization.BarChart(el).draw(data, options);
 }
 
-/* ── CHART: URGÊNCIA ── */
+/* ── FIX BUG 1: CHART PIZZA ── */
 function drawUrgencia(rows) {
   const count = {};
   rows.forEach(r => { count[r.urgencia] = (count[r.urgencia] || 0) + 1; });
 
+  // Garante que há dados antes de desenhar
+  const total = Object.values(count).reduce((a, b) => a + b, 0);
+  if (total === 0) {
+    document.getElementById('chart-urgencia').innerHTML =
+      '<div class="empty-state">Sem dados de urgência</div>';
+    return;
+  }
+
   const data = new google.visualization.DataTable();
   data.addColumn('string', 'Urgência');
   data.addColumn('number', 'Chamados');
-  ['Alta','Média','Baixa'].forEach(u => { if (count[u]) data.addRow([u, count[u]]); });
+  ['Alta', 'Média', 'Baixa'].forEach(u => { if (count[u]) data.addRow([u, count[u]]); });
 
   const options = {
-    chartArea:           { left: 20, right: 20, top: 10, bottom: 50, width:'100%', height:'80%' },
+    chartArea:           { left: 20, right: 20, top: 10, bottom: 50, width: '100%', height: '80%' },
     backgroundColor:     'transparent',
-    colors:              ['#E05C5C','#F4A261','#3AAB85'],
+    colors:              ['#E05C5C', '#F4A261', '#3AAB85'],
     legend:              { position: 'bottom', textStyle: { color: '#0D1F17', fontSize: 12 } },
     pieHole:             0.42,
     pieSliceBorderColor: 'white',
@@ -958,36 +1034,32 @@ function drawUrgencia(rows) {
 
   const el = document.getElementById('chart-urgencia');
   el.style.height = '280px';
-  new google.visualization.PieChart(el).draw(data, options);
+  // FIX BUG 1: cria nova instância limpa a cada render
+  const chart = new google.visualization.PieChart(el);
+  chart.draw(data, options);
 }
 
-/* ── CHART: TIMELINE (volume por semana) ── */
+/* ── CHART: TIMELINE ── */
 function drawTimeline(rows) {
   if (rows.length === 0) {
     document.getElementById('chart-timeline').innerHTML = '<div class="empty-state">Sem dados suficientes</div>';
     return;
   }
 
-  // Agrupar por semana (segunda-feira)
   const weekMap = {};
   rows.forEach(r => {
-    if (!r.data) return;
-    const parts = r.data.match(/(\d+)\/(\d+)\/(\d+)/);
-    if (!parts) return;
-    const d = new Date(parts[3], parts[2]-1, parts[1]);
-    // semana começa na segunda
-    const day = d.getDay(); // 0=dom
+    const d = parseRowDate(r.data);
+    if (!d) return;
+    const day  = d.getDay();
     const diff = (day === 0 ? -6 : 1 - day);
     const monday = new Date(d);
     monday.setDate(d.getDate() + diff);
-    const key = monday.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
+    const key = monday.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
     weekMap[key] = (weekMap[key] || 0) + 1;
   });
 
-  const sorted = Object.entries(weekMap).sort((a,b) => {
-    const toDate = s => { const p = s.split('/'); return new Date(p[2]||2026, p[1]-1, p[0]); };
-    return toDate(a[0]) - toDate(b[0]);
-  });
+  const toDate = s => { const p = s.split('/'); return new Date(2026, parseInt(p[1]) - 1, parseInt(p[0])); };
+  const sorted = Object.entries(weekMap).sort((a, b) => toDate(a[0]) - toDate(b[0]));
 
   const data = new google.visualization.DataTable();
   data.addColumn('string', 'Semana');
@@ -995,7 +1067,7 @@ function drawTimeline(rows) {
   sorted.forEach(([week, val]) => data.addRow([week, val]));
 
   const options = {
-    chartArea:   { left: 50, right: 30, top: 20, bottom: 50, width:'100%', height:'75%' },
+    chartArea:   { left: 50, right: 30, top: 20, bottom: 50, width: '100%', height: '75%' },
     backgroundColor: 'transparent',
     colors:      ['#3AAB85'],
     lineWidth:   3,
@@ -1005,7 +1077,6 @@ function drawTimeline(rows) {
     hAxis:       { textStyle: { color: '#0D1F17', fontSize: 11 }, slantedText: sorted.length > 8, slantedTextAngle: 30 },
     vAxis:       { gridlines: { color: '#EEF8F4' }, textStyle: { color: '#888', fontSize: 11 }, minValue: 0, format: '0' },
     animation:   { startup: true, duration: 1000, easing: 'out' },
-    tooltip:     { isHtml: false },
     curveType:   'function',
   };
 
@@ -1022,20 +1093,20 @@ function drawSalas(rows) {
     sala = sala.replace(/^sala\s+/i, 'Sala ').replace(/^(\d+)$/, 'Sala $1');
     count[sala] = (count[sala] || 0) + 1;
   });
-  const sorted = Object.entries(count).sort((a,b) => b[1]-a[1]).slice(0, 20);
+  const sorted = Object.entries(count).sort((a, b) => b[1] - a[1]).slice(0, 20);
 
   const data = new google.visualization.DataTable();
   data.addColumn('string', 'Sala');
   data.addColumn('number', 'Chamados');
-  data.addColumn({type:'string', role:'style'});
-  data.addColumn({type:'string', role:'annotation'});
+  data.addColumn({ type: 'string', role: 'style' });
+  data.addColumn({ type: 'string', role: 'annotation' });
   sorted.forEach(([sala, val]) => {
     const cor = val >= 4 ? '#1E6B52' : val >= 2 ? '#3AAB85' : '#5DC9A5';
     data.addRow([sala, val, 'color: ' + cor + '; opacity: 0.9', String(val)]);
   });
 
   const options = {
-    chartArea:   { left: 50, right: 30, top: 10, bottom: 60, width:'100%', height:'75%' },
+    chartArea:   { left: 50, right: 30, top: 10, bottom: 60, width: '100%', height: '75%' },
     backgroundColor: 'transparent',
     bar:         { groupWidth: '58%' },
     legend:      { position: 'none' },
@@ -1054,10 +1125,9 @@ function drawSalas(rows) {
 function exportCSV() {
   if (allRows.length === 0) { showToast('Nenhum dado para exportar.'); return; }
 
-  const rows = filteredRows.length > 0 ? filteredRows : allRows;
-  const header = ['Protocolo','Data/Hora','Sala','Categoria','Urgência','Status','Descrição','Solicitante','Contato'];
-
-  const esc = v => '"' + String(v).replace(/"/g, '""') + '"';
+  const rows  = filteredRows.length > 0 ? filteredRows : allRows;
+  const header = ['Protocolo', 'Data/Hora', 'Sala', 'Categoria', 'Urgência', 'Status', 'Descrição', 'Solicitante', 'Contato'];
+  const esc   = v => '"' + String(v).replace(/"/g, '""') + '"';
 
   const csv = [
     header.map(esc).join(','),
@@ -1066,19 +1136,16 @@ function exportCSV() {
       r.sala.replace(/^(\d+)$/, 'Sala $1'),
       r.categoria, r.urgencia,
       getStatus(r.proto),
-      r.descricao, r.solicitante,
-      r.telefone
+      r.descricao, r.solicitante, r.telefone
     ].map(esc).join(','))
   ].join('\n');
 
-  const bom = '\uFEFF'; // BOM para Excel reconhecer UTF-8
+  const bom  = '\uFEFF';
   const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
-  const date = new Date().toLocaleDateString('pt-BR').replace(/\//g,'-');
-  a.href     = url;
-  a.download = 'CAP_chamados_' + date + '.csv';
-  a.click();
+  const date = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+  a.href = url; a.download = 'CAP_chamados_' + date + '.csv'; a.click();
   URL.revokeObjectURL(url);
   showToast('CSV exportado com ' + rows.length + ' registros ✓');
 }
@@ -1086,15 +1153,16 @@ function exportCSV() {
 /* ── UTILS ── */
 function updateTimestamp() {
   const now = new Date();
-  const hh = String(now.getHours()).padStart(2,'0');
-  const mm = String(now.getMinutes()).padStart(2,'0');
-  const ss = String(now.getSeconds()).padStart(2,'0');
+  const hh  = String(now.getHours()).padStart(2, '0');
+  const mm  = String(now.getMinutes()).padStart(2, '0');
+  const ss  = String(now.getSeconds()).padStart(2, '0');
   document.getElementById('last-update').textContent = 'atualizado ' + hh + ':' + mm + ':' + ss;
 }
 
 function showError(msg) {
-  ['chart-categorias','chart-urgencia','chart-timeline','chart-salas'].forEach(id => {
-    document.getElementById(id).innerHTML = '<div style="background:#FFF0F0;border:1px solid #FFCCCC;border-radius:10px;padding:20px;color:#CC4444;font-size:13px;text-align:center">⚠️ ' + msg + '</div>';
+  ['chart-categorias', 'chart-urgencia', 'chart-timeline', 'chart-salas'].forEach(id => {
+    document.getElementById(id).innerHTML =
+      '<div style="background:#FFF0F0;border:1px solid #FFCCCC;border-radius:10px;padding:20px;color:#CC4444;font-size:13px;text-align:center">⚠️ ' + msg + '</div>';
   });
 }
 
