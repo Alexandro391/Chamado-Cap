@@ -533,54 +533,56 @@ function drawUrgencia(rows) {
   const el = document.getElementById('chart-urgencia');
   if (!el) return;
 
-  // 1. LIMPEZA IMEDIATA: Remove o spinner e prepara a área
+  // 1. LIMPEZA E PREPARAÇÃO
+  // Garante que o spinner de carregamento saia para dar lugar ao gráfico ou mensagem
   el.innerHTML = ''; 
 
-  // 2. PROCESSAMENTO ROBUSTO: Contagem com tratamento de erros
+  // 2. PROCESSAMENTO DE DADOS (Dicionário de contagem)
   const stats = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
-  let encontrouAlgumDado = false;
+  let temDadosValidos = false;
 
   rows.forEach(r => {
-    // Tratamento: remove espaços e garante que a primeira letra seja maiúscula
-    let val = (r.urgencia || '').trim();
-    if (val) {
-      val = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
+    // Normalização: remove espaços e padroniza a capitalização
+    let urg = (r.urgencia || '').trim();
+    if (urg) {
+      urg = urg.charAt(0).toUpperCase() + urg.slice(1).toLowerCase();
     }
     
-    if (stats.hasOwnProperty(val)) {
-      stats[val]++;
-      encontrouAlgumDado = true;
+    if (stats.hasOwnProperty(urg)) {
+      stats[urg]++;
+      temDadosValidos = true;
     }
   });
 
-  // 3. FEEDBACK VISUAL: Mensagem clara quando não há resultados
-  if (!encontrouAlgumDado) {
+  // 3. LOGICA DE FEEDBACK (Caso não haja dados após filtrar)
+  if (!temDadosValidos) {
     el.innerHTML = `
-      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; padding:20px;">
-        <div style="font-size:32px; margin-bottom:10px; opacity:0.5;">📊</div>
-        <p style="margin:0; font-weight:600; color:var(--text); font-size:14px;">Sem dados de Urgência</p>
-        <p style="margin:0; font-size:12px; color:var(--sub);">Não encontramos registros com os filtros atuais.</p>
+      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; padding:20px; opacity:0.7;">
+        <span style="font-size:2rem; margin-bottom:8px;">📊</span>
+        <p style="margin:0; font-weight:600; font-size:14px; color:var(--text);">Sem dados de urgência</p>
+        <p style="margin:0; font-size:12px; color:var(--sub);">Refine seus filtros para ver os resultados.</p>
       </div>`;
     return;
   }
 
-  // 4. LÓGICA DE DESENHO (Google Charts)
+  // 4. CONSTRUÇÃO DO GRÁFICO (Google Charts)
   const data = google.visualization.arrayToDataTable([
-    ['Urgência', 'Qtd'],
+    ['Nível', 'Quantidade'],
     ['Alta',  stats['Alta']],
     ['Média', stats['Média']],
     ['Baixa', stats['Baixa']]
   ]);
 
   const options = {
-    pieHole: 0.45,
+    pieHole: 0.45, // Estilo Donut moderno
     backgroundColor: 'transparent',
-    // Cores fixas: Vermelho (Alta), Laranja (Média), Verde (Baixa)
+    // Cores fixas seguindo a ordem do DataTable (Alta, Média, Baixa)
     colors: ['#E05C5C', '#F4A261', '#3AAB85'],
     legend: { 
       position: 'bottom', 
       textStyle: { color: 'var(--text)', fontSize: 12, fontName: 'DM Sans' } 
     },
+    // Ajuste da área interna para evitar cortes e maximizar visibilidade
     chartArea: { width: '100%', height: '80%', top: 10, bottom: 60 },
     pieSliceBorderColor: '#ffffff',
     pieSliceTextStyle: { color: '#ffffff', fontSize: 12, bold: true },
@@ -590,6 +592,7 @@ function drawUrgencia(rows) {
 
   const chart = new google.visualization.PieChart(el);
   chart.draw(data, options);
+}
 }
   function drawTimeline(rows){
   const el=document.getElementById('chart-timeline');
