@@ -531,61 +531,61 @@ function drawCategorias(rows){
 
 /**
  * Renderiza o gráfico de pizza (Donut) de Urgência.
- * Refatorado para garantir consistência de cores e feedback visual.
- * @param {Array} rows - Dados filtrados da planilha.
+ * Refatorado para garantir normalização de dados, tratamento de erros e UX.
  */
 function drawUrgencia(rows) {
-  const el = document.getElementById('chart-urgencia');
-  if (!el) return;
+  const container = document.getElementById('chart-urgencia');
+  if (!container) return;
 
-  // 1. LIMPEZA: Remove spinners ou mensagens de erro anteriores
-  el.innerHTML = '';
+  // 1. RESET DE ESTADO: Limpa o spinner de carregamento ou mensagens anteriores
+  container.innerHTML = '';
 
-  // 2. PROCESSAMENTO: Contagem dos níveis de urgência
+  // 2. PROCESSAMENTO: Contagem segura dos níveis de urgência
   const stats = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
-  let hasValidData = false;
+  let totalValidRecords = 0;
 
-  rows.forEach(r => {
-    // Normalização: Remove espaços e garante padrão CamelCase (ex: "alta" -> "Alta")
-    let val = (r.urgencia || '').trim();
-    if (val) val = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
+  rows.forEach(row => {
+    // Normalização: remove espaços e garante Capitalize (ex: " alta " -> "Alta")
+    let value = (row.urgencia || '').trim();
+    if (value) {
+      value = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+    }
     
-    if (stats.hasOwnProperty(val)) {
-      stats[val]++;
-      hasValidData = true;
+    if (stats.hasOwnProperty(value)) {
+      stats[value]++;
+      totalValidRecords++;
     }
   });
 
-  // 3. FEEDBACK: Mensagem amigável caso não haja dados para exibir
-  if (!hasValidData) {
-    el.innerHTML = `
-      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; padding:20px; color:var(--sub);">
-        <span style="font-size:2rem; margin-bottom:10px; opacity:0.6;">📊</span>
+  // 3. FEEDBACK AO USUÁRIO: Exibição de estado vazio (Empty State)
+  if (totalValidRecords === 0) {
+    container.innerHTML = `
+      <div class="empty-chart-feedback" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; padding:20px; color:var(--sub);">
+        <span style="font-size:2rem; margin-bottom:12px; filter:grayscale(1);">📊</span>
         <p style="margin:0; font-weight:600; font-size:14px;">Sem dados de urgência</p>
-        <p style="margin:0; font-size:12px; opacity:0.8;">Refine os seus filtros para ver resultados.</p>
+        <p style="margin:0; font-size:12px; opacity:0.7;">Tente ajustar os critérios dos seus filtros.</p>
       </div>`;
     return;
   }
 
-  // 4. ESTRUTURA: Montagem da tabela de dados do Google Charts
-  const data = google.visualization.arrayToDataTable([
+  // 4. CONFIGURAÇÃO DO GOOGLE CHARTS
+  const dataTable = google.visualization.arrayToDataTable([
     ['Nível', 'Quantidade'],
     ['Alta',  stats['Alta']],
     ['Média', stats['Média']],
     ['Baixa', stats['Baixa']]
   ]);
 
-  // 5. DESIGN: Configurações estéticas do gráfico
-  const options = {
-    pieHole: 0.45, // Estilo Donut
+  const chartOptions = {
+    pieHole: 0.45, // Estilo moderno de rosca
     backgroundColor: 'transparent',
-    // Cores fixas vinculadas à ordem: Alta (Red), Média (Orange), Baixa (Green)
+    // Cores fixas: Vermelho (Alta), Laranja (Média), Verde (Baixa)
     colors: ['#E05C5C', '#F4A261', '#3AAB85'],
     legend: { 
       position: 'bottom', 
       textStyle: { color: 'var(--text)', fontSize: 12, fontName: 'DM Sans' } 
     },
-    // Ajuste da área interna para maximizar o gráfico e evitar cortes
+    // Área do gráfico otimizada para evitar cortes em telas menores
     chartArea: { width: '100%', height: '80%', top: 10, bottom: 60 },
     pieSliceBorderColor: '#ffffff',
     pieSliceTextStyle: { color: '#ffffff', fontSize: 12, bold: true },
@@ -593,9 +593,9 @@ function drawUrgencia(rows) {
     animation: { startup: true, duration: 600, easing: 'out' }
   };
 
-  // 6. RENDERIZAÇÃO
-  const chart = new google.visualization.PieChart(el);
-  chart.draw(data, options);
+  // 5. RENDERIZAÇÃO FINAL
+  const chartInstance = new google.visualization.PieChart(container);
+  chartInstance.draw(dataTable, chartOptions);
 }
   function drawTimeline(rows){
   const el=document.getElementById('chart-timeline');
