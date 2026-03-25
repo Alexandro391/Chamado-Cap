@@ -531,7 +531,7 @@ function drawCategorias(rows){
 function drawUrgencia(rows){
   const el = document.getElementById('chart-urgencia');
 
-  // 🔥 GARANTE QUE O ELEMENTO TEM ALTURA (PRINCIPAL BUG)
+  // garante altura sempre
   el.style.height = "280px";
 
   const count = {};
@@ -541,7 +541,7 @@ function drawUrgencia(rows){
     }
   });
 
-  if(!count['Alta'] && !count['Média'] && !count['Baixa']){
+  if(Object.keys(count).length === 0){
     el.innerHTML = '<div class="empty-state">Sem dados</div>';
     return;
   }
@@ -554,28 +554,19 @@ function drawUrgencia(rows){
     if(count[u]) data.addRow([u, count[u]]);
   });
 
-  // 🔥 LIMPA COMPLETAMENTE (evita bug fantasma do Google Charts)
+  // limpa antes de redesenhar (ESSENCIAL)
   el.innerHTML = '';
 
   const chart = new google.visualization.PieChart(el);
 
   chart.draw(data,{
-    width: '100%',          // 🔥 força largura
-    height: 280,            // 🔥 força altura
-    chartArea:{
-      left:20,
-      right:20,
-      top:20,
-      bottom:50
-    },
+    width: '100%',
+    height: 280,
+    chartArea:{left:20,right:20,top:20,bottom:50},
     backgroundColor:'transparent',
     colors:['#E05C5C','#F4A261','#3AAB85'],
-    legend:{position:'bottom',textStyle:{color:'#0D1F17',fontSize:12}},
-    pieHole:0.42,
-    pieSliceBorderColor:'white',
-    pieSliceTextStyle:{color:'white',fontSize:13,bold:true},
-    animation:{startup:true,duration:700,easing:'out'},
-    tooltip:{text:'both'},
+    pieHole:0.4,
+    legend:{position:'bottom'},
   });
 }
 
