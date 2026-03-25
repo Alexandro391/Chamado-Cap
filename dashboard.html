@@ -707,33 +707,6 @@ function handleQueryResponse(resp) {
   const dt = resp.getDataTable();
   const rows = [];
 
-  // Mapeamento corrigido para 11 colunas (A até K)
-  for (let i = 0; i < dt.getNumberOfRows(); i++) {
-    rows.push({
-      data:        dt.getFormattedValue(i, 0), // Coluna A
-      proto:       dt.getValue(i, 1),          // Coluna B (Protocolo)
-      sala:        dt.getValue(i, 2),          // Coluna C
-      categoria:   dt.getValue(i, 3),          // Coluna D
-      urgencia:    dt.getValue(i, 4),          // Coluna E (URGÊNCIA) -> O gráfico usa esta!
-      descricao:   dt.getValue(i, 5),          // Coluna F
-      solicitante: dt.getValue(i, 6),          // Coluna G
-      tipo:        dt.getValue(i, 7),          // Coluna H (Tipo de Solicitante)
-      telefone:    dt.getValue(i, 8),          // Coluna I
-      status:      dt.getValue(i, 9) || 0      // Coluna J (Status)
-    });
-  }
-
-  allRows = rows; // Salva para os filtros funcionarem
-  
-  // Desenha os gráficos usando os novos dados
-  renderStats(rows);
-  drawCategorias(rows);
-  drawUrgencia(rows); 
-  drawTimeline(rows);
-  drawSalas(rows);
-  updateTimestamp();
-}
-
   for (let i = 0; i < dt.getNumberOfRows(); i++) {
     const tel = dt.getNumberOfColumns() > COL_TELEFONE
       ? (dt.getFormattedValue(i, COL_TELEFONE) || '').trim()
