@@ -529,43 +529,45 @@ function drawCategorias(rows){
 // 2. innerHTML limpo antes de new PieChart() — sem canvas fantasma
 // 3. chartArea com height explícito para não colapsar
 
+/**
+ * Renderiza o gráfico de pizza (Donut) de Urgência.
+ * Refatorado para garantir consistência de cores e feedback visual.
+ * @param {Array} rows - Dados filtrados da planilha.
+ */
 function drawUrgencia(rows) {
   const el = document.getElementById('chart-urgencia');
   if (!el) return;
 
-  // 1. LIMPEZA E PREPARAÇÃO
-  // Garante que o spinner de carregamento saia para dar lugar ao gráfico ou mensagem
-  el.innerHTML = ''; 
+  // 1. LIMPEZA: Remove spinners ou mensagens de erro anteriores
+  el.innerHTML = '';
 
-  // 2. PROCESSAMENTO DE DADOS (Dicionário de contagem)
+  // 2. PROCESSAMENTO: Contagem dos níveis de urgência
   const stats = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
-  let temDadosValidos = false;
+  let hasValidData = false;
 
   rows.forEach(r => {
-    // Normalização: remove espaços e padroniza a capitalização
-    let urg = (r.urgencia || '').trim();
-    if (urg) {
-      urg = urg.charAt(0).toUpperCase() + urg.slice(1).toLowerCase();
-    }
+    // Normalização: Remove espaços e garante padrão CamelCase (ex: "alta" -> "Alta")
+    let val = (r.urgencia || '').trim();
+    if (val) val = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
     
-    if (stats.hasOwnProperty(urg)) {
-      stats[urg]++;
-      temDadosValidos = true;
+    if (stats.hasOwnProperty(val)) {
+      stats[val]++;
+      hasValidData = true;
     }
   });
 
-  // 3. LOGICA DE FEEDBACK (Caso não haja dados após filtrar)
-  if (!temDadosValidos) {
+  // 3. FEEDBACK: Mensagem amigável caso não haja dados para exibir
+  if (!hasValidData) {
     el.innerHTML = `
-      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; padding:20px; opacity:0.7;">
-        <span style="font-size:2rem; margin-bottom:8px;">📊</span>
-        <p style="margin:0; font-weight:600; font-size:14px; color:var(--text);">Sem dados de urgência</p>
-        <p style="margin:0; font-size:12px; color:var(--sub);">Refine seus filtros para ver os resultados.</p>
+      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; padding:20px; color:var(--sub);">
+        <span style="font-size:2rem; margin-bottom:10px; opacity:0.6;">📊</span>
+        <p style="margin:0; font-weight:600; font-size:14px;">Sem dados de urgência</p>
+        <p style="margin:0; font-size:12px; opacity:0.8;">Refine os seus filtros para ver resultados.</p>
       </div>`;
     return;
   }
 
-  // 4. CONSTRUÇÃO DO GRÁFICO (Google Charts)
+  // 4. ESTRUTURA: Montagem da tabela de dados do Google Charts
   const data = google.visualization.arrayToDataTable([
     ['Nível', 'Quantidade'],
     ['Alta',  stats['Alta']],
@@ -573,16 +575,17 @@ function drawUrgencia(rows) {
     ['Baixa', stats['Baixa']]
   ]);
 
+  // 5. DESIGN: Configurações estéticas do gráfico
   const options = {
-    pieHole: 0.45, // Estilo Donut moderno
+    pieHole: 0.45, // Estilo Donut
     backgroundColor: 'transparent',
-    // Cores fixas seguindo a ordem do DataTable (Alta, Média, Baixa)
+    // Cores fixas vinculadas à ordem: Alta (Red), Média (Orange), Baixa (Green)
     colors: ['#E05C5C', '#F4A261', '#3AAB85'],
     legend: { 
       position: 'bottom', 
       textStyle: { color: 'var(--text)', fontSize: 12, fontName: 'DM Sans' } 
     },
-    // Ajuste da área interna para evitar cortes e maximizar visibilidade
+    // Ajuste da área interna para maximizar o gráfico e evitar cortes
     chartArea: { width: '100%', height: '80%', top: 10, bottom: 60 },
     pieSliceBorderColor: '#ffffff',
     pieSliceTextStyle: { color: '#ffffff', fontSize: 12, bold: true },
@@ -590,9 +593,9 @@ function drawUrgencia(rows) {
     animation: { startup: true, duration: 600, easing: 'out' }
   };
 
+  // 6. RENDERIZAÇÃO
   const chart = new google.visualization.PieChart(el);
   chart.draw(data, options);
-}
 }
   function drawTimeline(rows){
   const el=document.getElementById('chart-timeline');
