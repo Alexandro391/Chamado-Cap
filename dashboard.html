@@ -528,33 +528,38 @@ function drawCategorias(rows){
 // 1. Altura definida no HTML (não zerada em JS)
 // 2. innerHTML limpo antes de new PieChart() — sem canvas fantasma
 // 3. chartArea com height explícito para não colapsar
+
 function drawUrgencia(rows) {
   const el = document.getElementById('chart-urgencia');
   if (!el) return;
 
-  // 1. LIMPEZA TOTAL: Remove spinners e mensagens antigas
+  // 1. LIMPEZA IMEDIATA: Remove o spinner e prepara a área
   el.innerHTML = ''; 
 
-  // 2. PROCESSAMENTO: Contagem segura dos níveis de urgência
+  // 2. PROCESSAMENTO ROBUSTO: Contagem com tratamento de erros
   const stats = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
-  let encontrouDados = false;
+  let encontrouAlgumDado = false;
 
   rows.forEach(r => {
-    // Trim remove espaços extras; charAt(0).toUpperCase garante padronização
-    const urgRaw = (r.urgencia || '').trim();
-    if (stats.hasOwnProperty(urgRaw)) {
-      stats[urgRaw]++;
-      encontrouDados = true;
+    // Tratamento: remove espaços e garante que a primeira letra seja maiúscula
+    let val = (r.urgencia || '').trim();
+    if (val) {
+      val = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
+    }
+    
+    if (stats.hasOwnProperty(val)) {
+      stats[val]++;
+      encontrouAlgumDado = true;
     }
   });
 
-  // 3. FEEDBACK AO USUÁRIO: Se os filtros esconderem tudo, avisamos de forma clara
-  if (!encontrouDados) {
+  // 3. FEEDBACK VISUAL: Mensagem clara quando não há resultados
+  if (!encontrouAlgumDado) {
     el.innerHTML = `
-      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; color:var(--sub); padding:20px;">
-        <span style="font-size:24px; margin-bottom:10px;">🔍</span>
-        <p style="margin:0; font-weight:600; font-size:14px;">Sem dados de urgência</p>
-        <p style="margin:0; font-size:12px; opacity:0.8;">Tente ajustar ou limpar os filtros.</p>
+      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center; padding:20px;">
+        <div style="font-size:32px; margin-bottom:10px; opacity:0.5;">📊</div>
+        <p style="margin:0; font-weight:600; color:var(--text); font-size:14px;">Sem dados de Urgência</p>
+        <p style="margin:0; font-size:12px; color:var(--sub);">Não encontramos registros com os filtros atuais.</p>
       </div>`;
     return;
   }
@@ -568,15 +573,15 @@ function drawUrgencia(rows) {
   ]);
 
   const options = {
-    pieHole: 0.45, // Estilo rosca (donut)
+    pieHole: 0.45,
     backgroundColor: 'transparent',
-    // Ordem fixa: Vermelho para o primeiro item (Alta), Laranja (Média), Verde (Baixa)
-    colors: ['#E05C5C', '#F4A261', '#3AAB85'], 
+    // Cores fixas: Vermelho (Alta), Laranja (Média), Verde (Baixa)
+    colors: ['#E05C5C', '#F4A261', '#3AAB85'],
     legend: { 
       position: 'bottom', 
       textStyle: { color: 'var(--text)', fontSize: 12, fontName: 'DM Sans' } 
     },
-    chartArea: { width: '100%', height: '80%', top: 10, bottom: 50 },
+    chartArea: { width: '100%', height: '80%', top: 10, bottom: 60 },
     pieSliceBorderColor: '#ffffff',
     pieSliceTextStyle: { color: '#ffffff', fontSize: 12, bold: true },
     tooltip: { text: 'both', showColorCode: true },
@@ -586,7 +591,7 @@ function drawUrgencia(rows) {
   const chart = new google.visualization.PieChart(el);
   chart.draw(data, options);
 }
-function drawTimeline(rows){
+  function drawTimeline(rows){
   const el=document.getElementById('chart-timeline');
   if(!rows.length){el.innerHTML='<div class="empty-state">Sem dados</div>';return;}
   const wm={};
