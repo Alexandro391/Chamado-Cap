@@ -531,9 +531,14 @@ function drawCategorias(rows){
 function drawUrgencia(rows){
   const el = document.getElementById('chart-urgencia');
   
-  // 1. LIMPEZA: Remove o spinner de "Carregando..."
-  el.innerHTML = ''; 
+  // 1. LIMPEZA: Remove o spinner de "Carregando..." e evita sobreposição
+  if (el) {
+    el.innerHTML = ''; 
+  } else {
+    return; 
+  }
 
+  // 2. CONTAGEM: Garante que os dados existem e são contados corretamente
   const count = { 'Alta': 0, 'Média': 0, 'Baixa': 0 };
   rows.forEach(r => {
     if (r.urgencia && count[r.urgencia] !== undefined) {
@@ -541,9 +546,9 @@ function drawUrgencia(rows){
     }
   });
 
-  // 2. VERIFICAÇÃO: Se não houver dados, avisa em vez de quebrar
+  // 3. VERIFICAÇÃO: Se o filtro não encontrar nada, avisa o utilizador
   if(count['Alta'] === 0 && count['Média'] === 0 && count['Baixa'] === 0){
-    el.innerHTML = '<div class="empty-state" style="padding:20px; text-align:center; color:#888;">Sem dados de urgência</div>';
+    el.innerHTML = '<div class="empty-state" style="padding:20px; text-align:center; color:#888;">Sem dados de urgência para exibir</div>';
     return;
   }
 
@@ -551,23 +556,23 @@ function drawUrgencia(rows){
   data.addColumn('string', 'Urgência');
   data.addColumn('number', 'Chamados');
   
-  // Adiciona as fatias da pizza
+  // Adiciona as fatias apenas se houver valores > 0
   if(count['Alta'] > 0)  data.addRow(['Alta',  count['Alta']]);
   if(count['Média'] > 0) data.addRow(['Média', count['Média']]);
   if(count['Baixa'] > 0) data.addRow(['Baixa', count['Baixa']]);
 
+  // 4. DESENHO: Configurações de cores fixas e estilo rosca
   const chart = new google.visualization.PieChart(el);
   chart.draw(data, {
     chartArea: { left: 10, right: 10, top: 10, bottom: 50, width: '100%', height: '80%' },
     backgroundColor: 'transparent',
-    colors: ['#E05C5C', '#F4A261', '#3AAB85'],
+    colors: ['#E05C5C', '#F4A261', '#3AAB85'], // Vermelho, Laranja, Verde
     legend: { position: 'bottom', textStyle: { color: '#0D1F17', fontSize: 12 } },
-    pieHole: 0.4,
+    pieHole: 0.42,
     pieSliceBorderColor: 'white',
     animation: { startup: true, duration: 500, easing: 'out' }
   });
 }
-
 function drawTimeline(rows){
   const el=document.getElementById('chart-timeline');
   if(!rows.length){el.innerHTML='<div class="empty-state">Sem dados</div>';return;}
