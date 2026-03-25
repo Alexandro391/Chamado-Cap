@@ -529,21 +529,50 @@ function drawCategorias(rows){
 // 2. innerHTML limpo antes de new PieChart() — sem canvas fantasma
 // 3. chartArea com height explícito para não colapsar
 function drawUrgencia(rows){
-  const count={};rows.forEach(r=>{count[r.urgencia]=(count[r.urgencia]||0)+1;});
-  const el=document.getElementById('chart-urgencia');
-  if(!count['Alta']&&!count['Média']&&!count['Baixa']){
-    el.innerHTML='<div class="empty-state">Sem dados</div>';return;
+  const el = document.getElementById('chart-urgencia');
+
+  // 🔥 GARANTE QUE O ELEMENTO TEM ALTURA (PRINCIPAL BUG)
+  el.style.height = "280px";
+
+  const count = {};
+  rows.forEach(r=>{
+    if(r.urgencia){
+      count[r.urgencia] = (count[r.urgencia] || 0) + 1;
+    }
+  });
+
+  if(!count['Alta'] && !count['Média'] && !count['Baixa']){
+    el.innerHTML = '<div class="empty-state">Sem dados</div>';
+    return;
   }
-  const data=new google.visualization.DataTable();
-  data.addColumn('string','Urgência');data.addColumn('number','Chamados');
-  ['Alta','Média','Baixa'].forEach(u=>{if(count[u])data.addRow([u,count[u]]);});
-  el.innerHTML=''; // limpa render anterior antes de criar novo
-  new google.visualization.PieChart(el).draw(data,{
-    chartArea:{left:20,right:20,top:10,bottom:50,width:'100%',height:'78%'},
+
+  const data = new google.visualization.DataTable();
+  data.addColumn('string','Urgência');
+  data.addColumn('number','Chamados');
+
+  ['Alta','Média','Baixa'].forEach(u=>{
+    if(count[u]) data.addRow([u, count[u]]);
+  });
+
+  // 🔥 LIMPA COMPLETAMENTE (evita bug fantasma do Google Charts)
+  el.innerHTML = '';
+
+  const chart = new google.visualization.PieChart(el);
+
+  chart.draw(data,{
+    width: '100%',          // 🔥 força largura
+    height: 280,            // 🔥 força altura
+    chartArea:{
+      left:20,
+      right:20,
+      top:20,
+      bottom:50
+    },
     backgroundColor:'transparent',
     colors:['#E05C5C','#F4A261','#3AAB85'],
     legend:{position:'bottom',textStyle:{color:'#0D1F17',fontSize:12}},
-    pieHole:0.42,pieSliceBorderColor:'white',
+    pieHole:0.42,
+    pieSliceBorderColor:'white',
     pieSliceTextStyle:{color:'white',fontSize:13,bold:true},
     animation:{startup:true,duration:700,easing:'out'},
     tooltip:{text:'both'},
