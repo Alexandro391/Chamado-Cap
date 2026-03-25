@@ -1,0 +1,208 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="192" height="192">
+  <defs>
+
+    <radialGradient id="bgGrad" cx="50%" cy="42%" r="62%">
+      <stop offset="0%"   stop-color="#1e7055"/>
+      <stop offset="50%"  stop-color="#0e4335"/>
+      <stop offset="100%" stop-color="#051a10"/>
+    </radialGradient>
+
+    <radialGradient id="topShine" cx="50%" cy="8%" r="60%">
+      <stop offset="0%"   stop-color="#4ecca3" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="bottomDark" cx="50%" cy="95%" r="55%">
+      <stop offset="0%"   stop-color="#020d06" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="ringGrad" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%"   stop-color="#5de0a8"/>
+      <stop offset="45%"  stop-color="#2aab78"/>
+      <stop offset="100%" stop-color="#0a5c38"/>
+    </linearGradient>
+
+    <filter id="textShadow" x="-5%" y="-10%" width="110%" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="7" result="blur"/>
+      <feFlood flood-color="#000811" flood-opacity="0.65" result="col"/>
+      <feComposite in="col" in2="blur" operator="in" result="sh"/>
+      <feMerge><feMergeNode in="sh"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <filter id="dotGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <filter id="lineGlow" x="-20%" y="-200%" width="140%" height="500%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <clipPath id="cc">
+      <circle cx="256" cy="256" r="234"/>
+    </clipPath>
+
+  </defs>
+
+  <!-- Fundo preto do ícone -->
+  <rect width="512" height="512" fill="#050e08"/>
+
+  <!-- Anel externo escuro (moldura) -->
+  <circle cx="256" cy="256" r="252" fill="#061510"/>
+  <circle cx="256" cy="256" r="248" fill="#0a2218"/>
+  <!-- Anel principal -->
+  <circle cx="256" cy="256" r="244" fill="none" stroke="url(#ringGrad)" stroke-width="9"/>
+  <!-- Anel secundário interno -->
+  <circle cx="256" cy="256" r="237" fill="none" stroke="#3ecf91" stroke-width="0.8" opacity="0.30"/>
+
+  <!-- Fundo verde do círculo -->
+  <circle cx="256" cy="256" r="234" fill="url(#bgGrad)"/>
+
+  <!-- Grade interna (radar) -->
+  <g clip-path="url(#cc)">
+    <!-- Horizontais -->
+    <g stroke="#3ecf91" stroke-width="0.5" opacity="0.15">
+      <line x1="22" y1="106" x2="490" y2="106"/>
+      <line x1="22" y1="136" x2="490" y2="136"/>
+      <line x1="22" y1="166" x2="490" y2="166"/>
+      <line x1="22" y1="196" x2="490" y2="196"/>
+      <line x1="22" y1="226" x2="490" y2="226"/>
+      <line x1="22" y1="256" x2="490" y2="256"/>
+      <line x1="22" y1="286" x2="490" y2="286"/>
+      <line x1="22" y1="316" x2="490" y2="316"/>
+      <line x1="22" y1="346" x2="490" y2="346"/>
+      <line x1="22" y1="376" x2="490" y2="376"/>
+      <line x1="22" y1="406" x2="490" y2="406"/>
+    </g>
+    <!-- Verticais -->
+    <g stroke="#3ecf91" stroke-width="0.5" opacity="0.15">
+      <line x1="106" y1="22" x2="106" y2="490"/>
+      <line x1="136" y1="22" x2="136" y2="490"/>
+      <line x1="166" y1="22" x2="166" y2="490"/>
+      <line x1="196" y1="22" x2="196" y2="490"/>
+      <line x1="226" y1="22" x2="226" y2="490"/>
+      <line x1="256" y1="22" x2="256" y2="490"/>
+      <line x1="286" y1="22" x2="286" y2="490"/>
+      <line x1="316" y1="22" x2="316" y2="490"/>
+      <line x1="346" y1="22" x2="346" y2="490"/>
+      <line x1="376" y1="22" x2="376" y2="490"/>
+      <line x1="406" y1="22" x2="406" y2="490"/>
+    </g>
+    <!-- Círculos radar -->
+    <circle cx="256" cy="256" r="200" fill="none" stroke="#3ecf91" stroke-width="0.6" opacity="0.12"/>
+    <circle cx="256" cy="256" r="160" fill="none" stroke="#3ecf91" stroke-width="0.6" opacity="0.12"/>
+    <circle cx="256" cy="256" r="115" fill="none" stroke="#3ecf91" stroke-width="0.6" opacity="0.10"/>
+  </g>
+
+  <!-- Brilho topo -->
+  <circle cx="256" cy="256" r="234" fill="url(#topShine)"/>
+  <!-- Escurecimento base -->
+  <circle cx="256" cy="256" r="234" fill="url(#bottomDark)"/>
+
+  <!-- ── PONTOS CARDINAIS ── -->
+  <!-- Topo -->
+  <circle cx="256" cy="13"  r="5" fill="#5de0a8" filter="url(#dotGlow)" opacity="0.95"/>
+  <!-- Base -->
+  <circle cx="256" cy="499" r="5" fill="#5de0a8" filter="url(#dotGlow)" opacity="0.95"/>
+  <!-- Esquerda -->
+  <circle cx="13"  cy="256" r="5" fill="#5de0a8" filter="url(#dotGlow)" opacity="0.95"/>
+  <!-- Direita -->
+  <circle cx="499" cy="256" r="5" fill="#5de0a8" filter="url(#dotGlow)" opacity="0.95"/>
+
+  <!-- Pontos 45° menores -->
+  <circle cx="84"  cy="84"  r="2.5" fill="#5de0a8" opacity="0.40"/>
+  <circle cx="428" cy="84"  r="2.5" fill="#5de0a8" opacity="0.40"/>
+  <circle cx="84"  cy="428" r="2.5" fill="#5de0a8" opacity="0.40"/>
+  <circle cx="428" cy="428" r="2.5" fill="#5de0a8" opacity="0.40"/>
+
+  <!-- ── · FMC · ── -->
+  <text
+    x="256" y="200"
+    text-anchor="middle"
+    font-family="Arial, Helvetica Neue, sans-serif"
+    font-size="17"
+    font-weight="400"
+    letter-spacing="9"
+    fill="#5de0a8"
+    opacity="0.70"
+  >· FMC ·</text>
+
+  <!-- ── CAP ── -->
+  <text
+    x="258" y="318"
+    text-anchor="middle"
+    font-family="Georgia, Times New Roman, serif"
+    font-size="172"
+    font-weight="700"
+    fill="#ffffff"
+    filter="url(#textShadow)"
+    letter-spacing="-3"
+  >CAP</text>
+
+  <!-- ── LINHA SEPARADORA ── -->
+  <g filter="url(#lineGlow)">
+    <line x1="178" y1="338" x2="334" y2="338" stroke="#5de0a8" stroke-width="0.9" opacity="0.65"/>
+    <!-- ponto central na linha -->
+    <circle cx="256" cy="338" r="3.2" fill="#5de0a8" opacity="0.90"/>
+    <circle cx="178" cy="338" r="1.8" fill="#5de0a8" opacity="0.50"/>
+    <circle cx="334" cy="338" r="1.8" fill="#5de0a8" opacity="0.50"/>
+  </g>
+
+  <!-- ── CENTRAL DE APOIO PEDAGÓGICO ── -->
+  <text
+    x="256" y="362"
+    text-anchor="middle"
+    font-family="Arial, Helvetica Neue, sans-serif"
+    font-size="14.5"
+    font-weight="400"
+    letter-spacing="5"
+    fill="#5de0a8"
+    opacity="0.70"
+  >CENTRAL DE APOIO</text>
+
+  <text
+    x="256" y="382"
+    text-anchor="middle"
+    font-family="Arial, Helvetica Neue, sans-serif"
+    font-size="14.5"
+    font-weight="400"
+    letter-spacing="5"
+    fill="#5de0a8"
+    opacity="0.70"
+  >PEDAGÓGICO</text>
+
+  <!-- ── BADGE CHAMADOS ── -->
+  <!-- Sombra do badge -->
+  <rect x="191" y="400" width="130" height="34" rx="17" fill="#000" opacity="0.4"/>
+  <!-- Fundo azul -->
+  <rect x="190" y="398" width="132" height="34" rx="17" fill="#1a7adb" opacity="0.93"/>
+  <!-- Borda luminosa -->
+  <rect x="190" y="398" width="132" height="34" rx="17" fill="none" stroke="#6bbfff" stroke-width="1" opacity="0.55"/>
+  <!-- Brilho interno topo -->
+  <rect x="198" y="399" width="116" height="10" rx="8" fill="white" opacity="0.08"/>
+
+  <!-- Ícone Telegram refinado -->
+  <g transform="translate(207, 407)">
+    <!-- Corpo do avião -->
+    <path d="M0,9 L20,1 L16,21 L9,15 Z" fill="white" opacity="0.95"/>
+    <!-- Asa inferior -->
+    <path d="M9,15 L11,20 L14.5,13" fill="#1260b8" opacity="0.9"/>
+    <!-- Linha da dobra -->
+    <line x1="9" y1="15" x2="16" y2="4" stroke="white" stroke-width="0.8" opacity="0.3"/>
+  </g>
+
+  <!-- Texto CHAMADOS -->
+  <text
+    x="264" y="420"
+    text-anchor="middle"
+    font-family="Arial, Helvetica Neue, sans-serif"
+    font-size="13"
+    font-weight="700"
+    letter-spacing="2"
+    fill="white"
+    opacity="0.96"
+  >CHAMADOS</text>
+
+</svg>

@@ -1,0 +1,36 @@
+{
+  "name": "CAP Chamados — FMC",
+  "short_name": "CAP Chamados",
+  "description": "Sistema de chamados técnicos da Central de Apoio Pedagógico da FMC",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#090f0c",
+  "theme_color": "#3aab85",
+  "lang": "pt-BR",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Novo Chamado",
+      "short_name": "Novo",
+      "description": "Abrir formulário de novo chamado",
+      "url": "./index.html",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
