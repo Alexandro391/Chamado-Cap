@@ -350,8 +350,8 @@ function setStatus(proto,val){
 
 /* ── PROTOCOLO ESTÁVEL ── */
 // FIX: índice original gravado no objeto — protocolo nunca muda ao filtrar/recarregar
-function makeProto(idx, dateStr){
-  return 'CAP-' + idx + '-' + dateStr;
+function makeProto(idx){
+  return `CAP-${idx}`;
 }
 
 /* ── GOOGLE CHARTS ── */
