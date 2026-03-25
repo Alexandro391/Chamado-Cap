@@ -350,10 +350,8 @@ function setStatus(proto,val){
 
 /* ── PROTOCOLO ESTÁVEL ── */
 // FIX: índice original gravado no objeto — protocolo nunca muda ao filtrar/recarregar
-function makeProto(idx,dateStr){
-  let y=new Date().getFullYear().toString();
-  if(dateStr){const m=dateStr.match(/(\d{4})/);if(m)y=m[1];}
-  return 'CAP-'+y+'-'+String(idx+1).padStart(4,'0');
+function makeProto(idx, dateStr){
+  return 'CAP-' + idx + '-' + dateStr;
 }
 
 /* ── GOOGLE CHARTS ── */
