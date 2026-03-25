@@ -373,29 +373,35 @@ function fetchData(){
 }
 
 function handleQueryResponse(resp){
+  loadStatusMap(); // GARANTE QUE CARREGUE ANTES
+
   const dt=resp.getDataTable();
   const rows=[];
+
   for(let i=0;i<dt.getNumberOfRows();i++){
-    const tel=dt.getNumberOfColumns()>COL_TELEFONE?(dt.getFormattedValue(i,COL_TELEFONE)||'').trim():'—';
     const dataStr=(dt.getFormattedValue(i,COL_DATA)||'').trim();
+
+    const proto = makeProto(i,dataStr);
+
     rows.push({
       originalIndex:i,
-      proto:makeProto(i,dataStr),
+      proto:proto,
+      status:getStatus(proto), // 👈 AQUI
       data:dataStr,
       sala:(dt.getFormattedValue(i,COL_SALA)||'').trim(),
       categoria:(dt.getFormattedValue(i,COL_CATEGORIA)||'').trim(),
       urgencia:(dt.getFormattedValue(i,COL_URGENCIA)||'').trim(),
       descricao:(dt.getFormattedValue(i,COL_DESCRICAO)||'').trim(),
       solicitante:(dt.getFormattedValue(i,COL_SOLICITANTE)||'').trim(),
-      telefone:tel
+      telefone:(dt.getFormattedValue(i,COL_TELEFONE)||'').trim()
     });
   }
+
   allRows=rows;
   populateCatFilter();
   applyFiltersAndRedraw();
   updateTimestamp();
 }
-
 /* ── FILTROS + REDESENHO ── */
 // FIX: função única que filtra, redesenha gráficos e atualiza KPIs de forma sincronizada
 function applyFiltersAndRedraw(){
