@@ -1,0 +1,18 @@
+PATCH MÍNIMO PWA
+
+Suba estes arquivos na raiz do repositório:
+- icon-192.png
+- icon-512.png
+- favicon.ico
+
+Motivo:
+- index.html referencia icon-192.png
+- manifest.json referencia icon-192.png e icon-512.png
+- esses PNGs não existem na raiz atual do projeto
+
+Arquivos já existentes na raiz e que não precisam ser recriados:
+- manifest.json
+- sw.js
+
+Opcional:
+- remover do repositório o arquivo "chamado_cap_github (4).zip" depois de extrair o que for necessário
