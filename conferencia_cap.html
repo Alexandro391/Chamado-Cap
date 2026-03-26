@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CAP · Conferência de Chamados</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<style>
+:root {
+  --g1: #0D3D2A;
+  --g2: #1E6B52;
+  --g3: #3AAB85;
+  --g4: #5DC9A5;
+  --g5: #C8EFE2;
+  --g6: #EBF9F4;
+  --red: #E05C5C;
+  --yellow: #F4A261;
+  --blue: #4A7FE0;
+  --bg: #F0F8F4;
+  --card: #FFFFFF;
+  --text: #0D1F17;
+  --sub: #5A7A6A;
+  --border: #D4EDE2;
+  --border-strong: #A8D5BF;
+  --shadow: 0 2px 12px rgba(13,61,42,0.07);
+  --shadow-hover: 0 8px 32px rgba(13,61,42,0.13);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--g1);
+  padding: 0 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.logo-badge {
+  width: 38px; height: 38px;
+  background: var(--g3); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px; color: white; letter-spacing: 0.5px;
+}
+.header-title { font-size: 16px; font-weight: 600; color: white; }
+.header-sub   { font-size: 12px; color: var(--g4); margin-top: 1px; }
+.header-right { display: flex; align-items: center; gap: 14px; }
+
+.pulse-dot {
+  width: 8px; height: 8px; background: var(--g4); border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.3)} }
+.live-label { font-size: 12px; color: var(--g4); font-family: 'DM Mono', monospace; }
+#last-update { font-size: 11px; color: #5a8570; font-family: 'DM Mono', monospace; }
+
+.btn-export {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(58,171,133,0.15);
+  border: 1px solid rgba(58,171,133,0.4);
+  border-radius: 8px; padding: 8px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 600; color: var(--g4);
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.btn-export:hover { background: rgba(58,171,133,0.28); border-color: var(--g4); color: white; }
+
+/* ── MAIN ── */
+main { max-width: 1440px; margin: 0 auto; padding: 28px 24px 56px; }
+
+/* ── KPI ROW ── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  position: relative; overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow);
+}
+.kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+.kpi-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: var(--accent, var(--g3));
+}
+.kpi-label { font-size: 10px; font-weight: 600; color: var(--sub); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+.kpi-value { font-size: 34px; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 4px; }
+.kpi-note  { font-size: 11px; color: var(--sub); }
+.kpi-icon  { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 26px; opacity: 0.1; }
+
+/* ── FILTERS BAR ── */
+.filters-bar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
+  box-shadow: var(--shadow);
+}
+.filter-group { display: flex; flex-direction: column; gap: 5px; }
+.filter-label { font-size: 10px; font-weight: 600; color: var(--sub); text-transform: uppercase; letter-spacing: 0.8px; }
+.filter-select, .filter-input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500; color: var(--text);
+  outline: none; transition: border-color 0.2s;
+  min-width: 140px;
+}
+.filter-select:focus, .filter-input:focus { border-color: var(--g3); }
+.filter-input { min-width: 210px; }
+
+.btn-clear-filters {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 600; color: var(--sub);
+  cursor: pointer; transition: all 0.2s; align-self: flex-end;
+}
+.btn-clear-filters:hover { border-color: var(--g3); color: var(--g2); }
+
+.filter-count {
+  align-self: flex-end;
+  font-size: 12px; font-weight: 600; color: var(--g2);
+  padding: 8px 14px;
+  background: var(--g6); border: 1px solid var(--g5);
+  border-radius: 8px; white-space: nowrap;
+}
+
+/* ── TABLE CARD ── */
+.table-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.table-card-header {
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.table-card-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.table-card-sub   { font-size: 12px; color: var(--sub); margin-top: 2px; }
+.chart-tag {
+  font-size: 10px; font-weight: 600;
+  background: var(--g6); color: var(--g2);
+  border: 1px solid var(--g5); border-radius: 20px;
+  padding: 3px 10px;
+}
+
+.table-wrap { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead tr { background: var(--g1); color: white; }
+thead th {
+  padding: 11px 14px; text-align: left;
+  font-weight: 600; font-size: 11px; letter-spacing: 0.5px;
+  text-transform: uppercase; white-space: nowrap; color: rgba(255,255,255,0.75);
+}
+thead th:first-child { padding-left: 24px; }
+thead th:last-child  { padding-right: 24px; }
+
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+tbody tr:hover { background: var(--g6); }
+tbody tr:last-child { border-bottom: none; }
+tbody td { padding: 10px 14px; color: var(--text); vertical-align: middle; }
+tbody td:first-child { padding-left: 24px; }
+tbody td:last-child  { padding-right: 24px; }
+
+.proto-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; font-weight: 500; color: var(--g2);
+  background: var(--g6); border: 1px solid var(--g5);
+  border-radius: 6px; padding: 3px 8px; white-space: nowrap;
+}
+.date-cell {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; color: var(--sub); white-space: nowrap;
+}
+.sala-cell { font-weight: 600; white-space: nowrap; }
+
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.badge-alta   { background: #FFE5E5; color: #C43E3E; }
+.badge-media  { background: #FFF4E5; color: #C47A1A; }
+.badge-baixa  { background: #E8F7F1; color: #1A7A52; }
+
+.tipo-badge {
+  font-size: 11px; font-weight: 600; padding: 3px 9px;
+  border-radius: 20px; background: var(--g6); color: var(--g2);
+  white-space: nowrap;
+}
+
+.desc-text { color: var(--sub); max-width: 200px; }
+
+/* Status select */
+.status-select {
+  border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px; font-weight: 600; color: var(--text);
+  cursor: pointer; outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  min-width: 148px;
+}
+.status-select:focus { border-color: var(--g3); }
+.status-select.badge-pendente   { background: #FFF4E5; color: #C47A1A; border-color: #f4c97a; }
+.status-select.badge-atendendo  { background: #E8F0FF; color: #3B5CC4; border-color: #9aafe0; }
+.status-select.badge-concluido  { background: #E8F7F1; color: #1A7A52; border-color: #7abfa0; }
+.status-select:disabled { opacity: 0.6; cursor: default; }
+
+/* ── PAGINATION ── */
+.pagination {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px 0; flex-wrap: wrap; gap: 10px;
+  border-top: 1px solid var(--border);
+  padding-bottom: 14px;
+}
+.page-info { font-size: 12px; color: var(--sub); }
+.page-btns { display: flex; gap: 6px; }
+.page-btn {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 7px; padding: 6px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 600; color: var(--sub);
+  cursor: pointer; transition: all 0.15s;
+}
+.page-btn:hover { border-color: var(--g3); color: var(--g2); }
+.page-btn.active { background: var(--g1); color: white; border-color: var(--g1); }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.empty-state { text-align: center; padding: 40px; color: var(--sub); font-size: 14px; }
+.loading-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; gap: 14px; }
+.spinner { width: 32px; height: 32px; border: 3px solid var(--g5); border-top-color: var(--g3); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 13px; color: var(--sub); }
+
+footer { text-align: center; padding: 24px; font-size: 12px; color: var(--sub); border-top: 1px solid var(--border); margin-top: 8px; }
+footer strong { color: var(--g2); }
+
+#toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--g1); color: var(--g4);
+  border: 1px solid rgba(58,171,133,0.3);
+  border-radius: 10px; padding: 12px 20px;
+  font-size: 13px; font-weight: 500;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+  z-index: 9000; opacity: 0; transform: translateY(16px);
+  transition: all 0.3s; pointer-events: none;
+}
+#toast.show { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 1024px) {
+  .kpi-row { grid-template-columns: repeat(3, 1fr); }
+  main { padding: 20px 16px 40px; }
+  header { padding: 0 16px; }
+}
+@media (max-width: 640px) {
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+  .filters-bar { flex-direction: column; }
+  .filter-select, .filter-input { min-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="logo-badge">CAP</div>
+    <div>
+      <div class="header-title">Conferência de Chamados</div>
+      <div class="header-sub">Central de Apoio Pedagógico · FMC</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-export" onclick="exportCSV()">⬇ Exportar CSV</button>
+    <div class="pulse-dot"></div>
+    <span class="live-label">AO VIVO</span>
+    <span id="last-update">—</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:#3AAB85">
+      <div class="kpi-label">Total de Chamados</div>
+      <div class="kpi-value" id="kpi-total">—</div>
+      <div class="kpi-note">desde o início</div>
+      <div class="kpi-icon">📋</div>
+    </div>
+    <div class="kpi-card" style="--accent:#E05C5C">
+      <div class="kpi-label">Alta Urgência</div>
+      <div class="kpi-value" id="kpi-alta">—</div>
+      <div class="kpi-note" id="kpi-alta-pct">—</div>
+      <div class="kpi-icon">🔴</div>
+    </div>
+    <div class="kpi-card" style="--accent:#F4A261">
+      <div class="kpi-label">Pendentes</div>
+      <div class="kpi-value" id="kpi-pendente">—</div>
+      <div class="kpi-note">aguardando atendimento</div>
+      <div class="kpi-icon">⏳</div>
+    </div>
+    <div class="kpi-card" style="--accent:#4A7FE0">
+      <div class="kpi-label">Em Atendimento</div>
+      <div class="kpi-value" id="kpi-atendendo">—</div>
+      <div class="kpi-note">em andamento</div>
+      <div class="kpi-icon">🔧</div>
+    </div>
+    <div class="kpi-card" style="--accent:#1E6B52">
+      <div class="kpi-label">Concluídos</div>
+      <div class="kpi-value" id="kpi-concluido">—</div>
+      <div class="kpi-note" id="kpi-concluido-pct">—</div>
+      <div class="kpi-icon">✅</div>
+    </div>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="filters-bar">
+    <div class="filter-group">
+      <span class="filter-label">Período</span>
+      <select class="filter-select" id="f-periodo" onchange="applyFilters()">
+        <option value="todos">Todos</option>
+        <option value="hoje">Hoje</option>
+        <option value="semana">Esta semana</option>
+        <option value="mes">Este mês</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Urgência</span>
+      <select class="filter-select" id="f-urgencia" onchange="applyFilters()">
+        <option value="">Todas</option>
+        <option value="Alta">Alta</option>
+        <option value="Média">Média</option>
+        <option value="Baixa">Baixa</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Status</span>
+      <select class="filter-select" id="f-status" onchange="applyFilters()">
+        <option value="">Todos</option>
+        <option value="Pendente">Pendente</option>
+        <option value="Em atendimento">Em atendimento</option>
+        <option value="Concluído">Concluído</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Tipo</span>
+      <select class="filter-select" id="f-tipo" onchange="applyFilters()">
+        <option value="">Todos</option>
+        <option value="Professor">Professor</option>
+        <option value="Aluno">Aluno</option>
+        <option value="Funcionário">Funcionário</option>
+        <option value="Visitante">Visitante</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Busca livre</span>
+      <input class="filter-input" type="text" id="f-busca" placeholder="Sala, nome, protocolo, descrição..." oninput="applyFilters()">
+    </div>
+    <button class="btn-clear-filters" onclick="clearFilters()">✕ Limpar</button>
+    <div class="filter-count" id="filter-count">— registros</div>
+  </div>
+
+  <!-- TABELA -->
+  <div class="table-card">
+    <div class="table-card-header">
+      <div>
+        <div class="table-card-title">Registros de Chamados</div>
+        <div class="table-card-sub">Clique no status para atualizar — salva automaticamente na planilha</div>
+      </div>
+      <span class="chart-tag">TABELA</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Data / Hora</th>
+            <th>Protocolo</th>
+            <th>Sala</th>
+            <th>Categoria</th>
+            <th>Urgência</th>
+            <th>Descrição</th>
+            <th>Solicitante</th>
+            <th>Tipo</th>
+            <th>Telefone</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="10">
+            <div class="loading-wrap">
+              <div class="spinner"></div>
+              <span class="loading-text">Carregando dados da planilha...</span>
+            </div>
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+</main>
+
+<footer>
+  Conferência <strong>CAP · FMC</strong> · Sistema de Chamados Rápido · 2026 · Atualiza a cada <strong>10 segundos</strong>
+</footer>
+
+<div id="toast"></div>
+
+<script>
+const SHEET_ID = '1pshUNeBk-30YxnuYttnVDNioI5LXrHgGQfRY21pehng';
+const APPS_URL = 'https://script.google.com/macros/s/AKfycbxId77oG4ZTcRzXth8Xdy_WNoKaDW_Lyer8dBqkohg4yOuOy9bSQWP_VcUh-3ZGW3vn/exec';
+const PER_PAGE = 20;
+
+const C = { DATA:0, PROTO:1, SALA:2, CAT:3, URG:4, DESC:5, NOME:6, TIPO:7, TEL:8, STATUS:9 };
+
+let allRows      = [];
+let filteredRows = [];
+let statusMap    = {};
+let currentPage  = 1;
+let chartsReady  = false;
+
+try { statusMap = JSON.parse(localStorage.getItem('cap_status') || '{}'); } catch(e) { statusMap = {}; }
+
+google.charts.load('current', { packages: ['corechart'], language: 'pt' });
+google.charts.setOnLoadCallback(() => { chartsReady = true; fetchData(); });
+setInterval(() => { if (chartsReady) fetchData(); }, 10000);
+
+function fetchData() {
+  const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?gid=0&tq=select%20*&headers=1';
+  new google.visualization.Query(url).send(handleResponse);
+}
+
+function handleResponse(resp) {
+  if (resp.isError()) { showToast('⚠ Erro: ' + resp.getMessage()); return; }
+  const dt = resp.getDataTable();
+  const rows = [];
+
+  for (let i = 0; i < dt.getNumberOfRows(); i++) {
+    const ncols     = dt.getNumberOfColumns();
+    const proto     = ncols > C.PROTO  ? (dt.getFormattedValue(i, C.PROTO)  || '').trim() : ('CAP-' + (i+1));
+    const statusRaw = ncols > C.STATUS ? (dt.getFormattedValue(i, C.STATUS) || '').trim().toLowerCase() : '';
+    statusMap[proto] = statusRaw.includes('conclu') ? 'Concluído'
+      : statusRaw.includes('atend') ? 'Em atendimento'
+      : 'Pendente';
+
+    rows.push({
+      data: dt.getFormattedValue(i, C.DATA),
+      proto,
+      sala: (dt.getFormattedValue(i, C.SALA) || '').trim(),
+      cat:  (dt.getFormattedValue(i, C.CAT)  || '').trim(),
+      urg:  (dt.getFormattedValue(i, C.URG)  || '').trim(),
+      desc: (dt.getFormattedValue(i, C.DESC) || '').trim(),
+      nome: (dt.getFormattedValue(i, C.NOME) || '').trim(),
+      tipo: ncols > C.TIPO ? (dt.getFormattedValue(i, C.TIPO) || '').trim() : '—',
+      tel:  ncols > C.TEL  ? (dt.getFormattedValue(i, C.TEL)  || '').trim() : '—',
+    });
+  }
+
+  localStorage.setItem('cap_status', JSON.stringify(statusMap));
+  allRows = rows;
+  const saved = currentPage;
+  applyFilters();
+  currentPage = saved;
+  renderTable();
+  renderPagination();
+  updateKPIs();
+  updateTimestamp();
+}
+
+/* ── FILTERS ── */
+function applyFilters() {
+  const periodo = document.getElementById('f-periodo').value;
+  const urg     = document.getElementById('f-urgencia').value;
+  const status  = document.getElementById('f-status').value;
+  const tipo    = document.getElementById('f-tipo').value;
+  const busca   = document.getElementById('f-busca').value.toLowerCase().trim();
+
+  const now       = new Date();
+  const dow       = now.getDay();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() + (dow === 0 ? -6 : 1 - dow));
+  weekStart.setHours(0,0,0,0);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  filteredRows = allRows.filter(r => {
+    if (periodo !== 'todos') {
+      const d = parseDate(r.data);
+      if (!d) return false;
+      if (periodo === 'hoje'   && !sameDay(d, now)) return false;
+      if (periodo === 'semana' && d < weekStart)     return false;
+      if (periodo === 'mes'    && d < monthStart)    return false;
+    }
+    if (urg    && r.urg !== urg)                        return false;
+    if (status && (statusMap[r.proto]||'Pendente') !== status) return false;
+    if (tipo   && r.tipo !== tipo)                      return false;
+    if (busca) {
+      const hay = [r.sala, r.nome, r.desc, r.cat, r.proto, r.tipo].join(' ').toLowerCase();
+      if (!hay.includes(busca)) return false;
+    }
+    return true;
+  });
+
+  currentPage = 1;
+  document.getElementById('filter-count').textContent =
+    filteredRows.length + ' registro' + (filteredRows.length !== 1 ? 's' : '');
+  renderTable();
+  renderPagination();
+}
+
+function clearFilters() {
+  document.getElementById('f-periodo').value  = 'todos';
+  document.getElementById('f-urgencia').value = '';
+  document.getElementById('f-status').value   = '';
+  document.getElementById('f-tipo').value     = '';
+  document.getElementById('f-busca').value    = '';
+  applyFilters();
+}
+
+/* ── TABLE ── */
+function renderTable() {
+  const start    = (currentPage - 1) * PER_PAGE;
+  const pageRows = [...filteredRows].reverse().slice(start, start + PER_PAGE);
+
+  if (!pageRows.length) {
+    document.getElementById('tbody').innerHTML =
+      '<tr><td colspan="10" class="empty-state">Nenhum chamado encontrado com os filtros aplicados.</td></tr>';
+    return;
+  }
+
+  document.getElementById('tbody').innerHTML = pageRows.map(r => {
+    const urg   = r.urg || '—';
+    const urgCl = urg === 'Alta' ? 'badge-alta' : urg === 'Média' ? 'badge-media' : 'badge-baixa';
+    const cat   = (r.cat || '—').split('/')[0].trim();
+    const desc  = r.desc.length > 52 ? r.desc.slice(0,52) + '…' : (r.desc || '—');
+    const sala  = (r.sala || '—').replace(/^(\d+)$/, 'Sala $1');
+    const st    = statusMap[r.proto] || 'Pendente';
+    const stCl  = st === 'Concluído' ? 'badge-concluido' : st === 'Em atendimento' ? 'badge-atendendo' : 'badge-pendente';
+    const opts  = ['Pendente','Em atendimento','Concluído'];
+
+    return `<tr>
+      <td><span class="date-cell">${r.data || '—'}</span></td>
+      <td><span class="proto-badge">${r.proto}</span></td>
+      <td><span class="sala-cell">${sala}</span></td>
+      <td>${cat}</td>
+      <td><span class="badge ${urgCl}">${urg}</span></td>
+      <td><span class="desc-text" title="${r.desc}">${desc}</span></td>
+      <td>${r.nome || '—'}</td>
+      <td><span class="tipo-badge">${r.tipo || '—'}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--sub)">${r.tel || '—'}</td>
+      <td>
+        <select class="status-select ${stCl}" onchange="setStatus('${r.proto}', this.value, this)">
+          ${opts.map(o => `<option value="${o}" ${o===st?'selected':''}>${o}</option>`).join('')}
+        </select>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── STATUS ── */
+function setStatus(proto, val, sel) {
+  statusMap[proto] = val;
+  localStorage.setItem('cap_status', JSON.stringify(statusMap));
+  if (sel) {
+    sel.className = 'status-select ' + (val==='Concluído'?'badge-concluido':val==='Em atendimento'?'badge-atendendo':'badge-pendente');
+    sel.disabled  = true;
+  }
+  fetch(APPS_URL + '?action=updateStatus&protocolo=' + encodeURIComponent(proto) + '&status=' + encodeURIComponent(val))
+    .then(() => showToast('✓ Status atualizado: ' + val))
+    .catch(() => showToast('⚠ Salvo localmente — sem conexão'))
+    .finally(() => { if (sel) sel.disabled = false; });
+  updateKPIs();
+}
+
+/* ── PAGINATION ── */
+function renderPagination() {
+  const total = filteredRows.length;
+  const pages = Math.ceil(total / PER_PAGE);
+  const pg    = document.getElementById('pagination');
+  if (pages <= 1) { pg.innerHTML = ''; return; }
+
+  const start = (currentPage - 1) * PER_PAGE + 1;
+  const end   = Math.min(currentPage * PER_PAGE, total);
+  let btns = '';
+  for (let i = 1; i <= pages; i++) {
+    if (i===1 || i===pages || Math.abs(i-currentPage)<=1) {
+      btns += `<button class="page-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    } else if (!btns.endsWith('…</span>')) {
+      btns += `<span style="padding:6px 4px;color:var(--sub)">…</span>`;
+    }
+  }
+  pg.innerHTML = `
+    <span class="page-info">Exibindo ${start}–${end} de ${total}</span>
+    <div class="page-btns">
+      <button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>
+      ${btns}
+      <button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>›</button>
+    </div>`;
+}
+
+function goPage(p) {
+  const pages = Math.ceil(filteredRows.length / PER_PAGE);
+  if (p<1||p>pages) return;
+  currentPage = p;
+  renderTable();
+  renderPagination();
+  window.scrollTo({ top: document.querySelector('.table-card').offsetTop - 80, behavior: 'smooth' });
+}
+
+/* ── KPIs ── */
+function updateKPIs() {
+  const total  = allRows.length;
+  const alta   = allRows.filter(r => r.urg === 'Alta').length;
+  const pend   = allRows.filter(r => (statusMap[r.proto]||'Pendente') === 'Pendente').length;
+  const atend  = allRows.filter(r => statusMap[r.proto] === 'Em atendimento').length;
+  const concl  = allRows.filter(r => statusMap[r.proto] === 'Concluído').length;
+
+  document.getElementById('kpi-total').textContent      = total;
+  document.getElementById('kpi-alta').textContent       = alta;
+  document.getElementById('kpi-alta-pct').textContent   = total ? Math.round(alta/total*100)+'% dos chamados' : '—';
+  document.getElementById('kpi-pendente').textContent   = pend;
+  document.getElementById('kpi-atendendo').textContent  = atend;
+  document.getElementById('kpi-concluido').textContent  = concl;
+  document.getElementById('kpi-concluido-pct').textContent = total ? Math.round(concl/total*100)+'% resolvidos' : '—';
+}
+
+/* ── UTILS ── */
+function parseDate(s) {
+  if (!s) return null;
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  return m ? new Date(+m[3], +m[2]-1, +m[1]) : null;
+}
+function sameDay(a,b) {
+  return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
+}
+function updateTimestamp() {
+  const n = new Date();
+  document.getElementById('last-update').textContent =
+    'atualizado ' + String(n.getHours()).padStart(2,'0') + ':' +
+    String(n.getMinutes()).padStart(2,'0') + ':' + String(n.getSeconds()).padStart(2,'0');
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ── EXPORT CSV ── */
+function exportCSV() {
+  if (!allRows.length) { showToast('Nenhum dado para exportar.'); return; }
+  const rows = filteredRows.length ? filteredRows : allRows;
+  const esc  = v => '"' + String(v).replace(/"/g,'""') + '"';
+  const hdr  = ['Data/Hora','Protocolo','Sala','Categoria','Urgência','Descrição','Solicitante','Tipo','Telefone','Status'];
+  const csv  = [hdr.map(esc).join(','),
+    ...[...rows].reverse().map(r => [r.data,r.proto,r.sala,r.cat,r.urg,r.desc,r.nome,r.tipo,r.tel,statusMap[r.proto]||'Pendente'].map(esc).join(','))
+  ].join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = 'CAP_conferencia_' + new Date().toLocaleDateString('pt-BR').replace(/\//g,'-') + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exportado com ' + rows.length + ' registros ✓');
+}
+</script>
+</body>
+</html>
