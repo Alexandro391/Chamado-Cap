@@ -585,7 +585,7 @@ footer strong { color: var(--g2); }
 
 <footer>
   Dashboard <strong>CAP · FMC</strong> · Sistema de Chamados Rápido · 2026 ·
-  Atualiza a cada <strong>30 segundos</strong>
+  Atualiza a cada <strong>10 segundos</strong>
 </footer>
 
 <div id="toast"></div>
@@ -1210,7 +1210,7 @@ function showToast(msg) {
 }
 
 /* ── AUTO REFRESH ── */
-setInterval(() => { if (chartsReady) fetchAndDraw(); }, 30000);
+setInterval(() => { if (chartsReady) fetchAndDraw(); }, 10000);
 </script>
 </body>
 </html>
