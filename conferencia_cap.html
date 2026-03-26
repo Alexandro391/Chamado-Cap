@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CAP · Conferência de Chamados</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<style>
+:root {
+  --ink:    #0A0F0D;
+  --ink2:   #1C2B22;
+  --ink3:   #2E4438;
+  --green:  #00C47A;
+  --green2: #00A865;
+  --green3: #007A48;
+  --cream:  #F5F2EB;
+  --cream2: #EDE9E0;
+  --cream3: #E2DDD3;
+  --red:    #E8432D;
+  --yellow: #F5A623;
+  --blue:   #2D6BE8;
+  --white:  #FFFFFF;
+  --shadow: 0 4px 24px rgba(10,15,13,0.10);
+  --shadow-lg: 0 12px 48px rgba(10,15,13,0.16);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ── NOISE TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--ink);
+  padding: 0 40px;
+  height: 68px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+
+.header-left { display: flex; align-items: center; gap: 16px; }
+
+.logo {
+  width: 40px; height: 40px;
+  background: var(--green);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: var(--ink);
+  letter-spacing: 0.5px;
+}
+
+.header-title {
+  font-size: 15px; font-weight: 700; color: var(--white);
+  letter-spacing: 0.3px;
+}
+.header-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 1px; font-weight: 400; }
+
+.header-right { display: flex; align-items: center; gap: 12px; }
+
+.live-badge {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(0,196,122,0.12);
+  border: 1px solid rgba(0,196,122,0.3);
+  border-radius: 20px;
+  padding: 5px 12px;
+}
+.live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+  animation: blink 2s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.live-text { font-size: 11px; font-weight: 600; color: var(--green); letter-spacing: 1px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+
+#last-sync {
+  font-size: 11px; color: rgba(255,255,255,0.35);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.btn-export {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px; padding: 8px 16px;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.7);
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.btn-export:hover { background: rgba(255,255,255,0.13); color: white; border-color: rgba(255,255,255,0.3); }
+
+/* ── MAIN ── */
+main { max-width: 1440px; margin: 0 auto; padding: 32px 40px 64px; position: relative; z-index: 1; }
+
+/* ── STATS ROW ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--white);
+  border-radius: 14px;
+  padding: 18px 20px;
+  border: 1px solid var(--cream3);
+  box-shadow: var(--shadow);
+  position: relative; overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.stat-card::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: var(--accent, var(--green));
+  border-radius: 0 0 14px 14px;
+}
+.stat-label { font-size: 10px; font-weight: 600; color: #8A9990; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.stat-value { font-size: 36px; font-weight: 800; color: var(--ink); line-height: 1; }
+.stat-note  { font-size: 11px; color: #8A9990; margin-top: 4px; font-weight: 500; }
+
+/* ── FILTERS ── */
+.filters-wrap {
+  background: var(--white);
+  border: 1px solid var(--cream3);
+  border-radius: 16px;
+  padding: 18px 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
+}
+
+.filter-group { display: flex; flex-direction: column; gap: 5px; }
+.filter-label { font-size: 10px; font-weight: 700; color: #8A9990; text-transform: uppercase; letter-spacing: 1px; }
+
+.filter-select, .filter-input {
+  background: var(--cream);
+  border: 1.5px solid var(--cream3);
+  border-radius: 8px;
+  padding: 9px 13px;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px; font-weight: 500;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  min-width: 140px;
+  cursor: pointer;
+}
+.filter-select:focus, .filter-input:focus {
+  border-color: var(--green);
+  background: #f0fdf8;
+}
+.filter-input { min-width: 220px; }
+
+.btn-clear {
+  background: transparent;
+  border: 1.5px solid var(--cream3);
+  border-radius: 8px; padding: 9px 18px;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 600; color: #8A9990;
+  cursor: pointer; transition: all 0.2s; align-self: flex-end;
+}
+.btn-clear:hover { border-color: var(--red); color: var(--red); }
+
+.filter-result {
+  align-self: flex-end;
+  font-size: 12px; font-weight: 700;
+  color: var(--ink2);
+  background: var(--cream2);
+  border: 1.5px solid var(--cream3);
+  border-radius: 8px; padding: 9px 16px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── TABLE CARD ── */
+.table-card {
+  background: var(--white);
+  border: 1px solid var(--cream3);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.table-header {
+  padding: 20px 28px 16px;
+  border-bottom: 1px solid var(--cream2);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.table-title { font-size: 15px; font-weight: 700; color: var(--ink); }
+.table-sub   { font-size: 12px; color: #8A9990; margin-top: 2px; font-weight: 400; }
+
+.table-wrap { overflow-x: auto; }
+
+table {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px;
+}
+
+thead tr {
+  background: var(--ink);
+}
+thead th {
+  padding: 13px 16px;
+  text-align: left;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  white-space: nowrap;
+}
+thead th:first-child { border-radius: 0; padding-left: 28px; }
+thead th:last-child  { padding-right: 28px; }
+
+tbody tr {
+  border-bottom: 1px solid var(--cream2);
+  transition: background 0.15s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #f6fdf9; }
+
+tbody td {
+  padding: 12px 16px;
+  color: var(--ink);
+  vertical-align: middle;
+}
+tbody td:first-child { padding-left: 28px; }
+tbody td:last-child  { padding-right: 28px; }
+
+/* Protocolo */
+.proto {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  color: var(--ink3);
+  background: var(--cream2);
+  border: 1px solid var(--cream3);
+  border-radius: 6px;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+
+/* Data */
+.date-cell {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #8A9990;
+  white-space: nowrap;
+}
+
+/* Urgência badges */
+.urg {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 700;
+  white-space: nowrap;
+}
+.urg-alta   { background: #FDECEA; color: var(--red); }
+.urg-media  { background: #FEF6E7; color: #C47A0A; }
+.urg-baixa  { background: #E8FAF2; color: var(--green3); }
+
+/* Status select */
+.status-sel {
+  border: 1.5px solid var(--cream3);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 600;
+  color: var(--ink);
+  cursor: pointer; outline: none;
+  transition: all 0.2s;
+  min-width: 150px;
+}
+.status-sel:focus { border-color: var(--green); }
+.status-sel.s-pendente   { background: #FEF6E7; color: #C47A0A; border-color: #F5D78A; }
+.status-sel.s-atendendo  { background: #EBF1FD; color: var(--blue); border-color: #A8C0F0; }
+.status-sel.s-concluido  { background: #E8FAF2; color: var(--green3); border-color: #7AD4A8; }
+.status-sel:disabled { opacity: 0.6; cursor: default; }
+
+/* Tipo badge */
+.tipo {
+  font-size: 11px; font-weight: 600;
+  padding: 3px 9px; border-radius: 20px;
+  background: var(--cream2); color: var(--ink3);
+  white-space: nowrap;
+}
+
+/* Descrição */
+.desc-cell { color: #5A7060; max-width: 220px; }
+
+/* Sala */
+.sala-cell { font-weight: 600; white-space: nowrap; }
+
+/* ── PAGINATION ── */
+.pagination {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 28px;
+  border-top: 1px solid var(--cream2);
+  flex-wrap: wrap; gap: 10px;
+}
+.page-info { font-size: 12px; color: #8A9990; font-family: 'JetBrains Mono', monospace; }
+.page-btns { display: flex; gap: 6px; }
+.page-btn {
+  background: var(--cream);
+  border: 1.5px solid var(--cream3);
+  border-radius: 8px; padding: 6px 13px;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 600; color: #8A9990;
+  cursor: pointer; transition: all 0.15s;
+}
+.page-btn:hover { border-color: var(--green); color: var(--green3); }
+.page-btn.active { background: var(--ink); color: white; border-color: var(--ink); }
+.page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── EMPTY / LOADING ── */
+.empty {
+  text-align: center; padding: 52px 20px;
+  color: #8A9990; font-size: 14px; font-weight: 500;
+}
+.spinner-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 52px; gap: 16px;
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--cream3);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner-text { font-size: 13px; color: #8A9990; font-weight: 500; }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 28px; right: 28px;
+  background: var(--ink); color: var(--green);
+  border: 1px solid rgba(0,196,122,0.3);
+  border-radius: 12px; padding: 13px 22px;
+  font-size: 13px; font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  z-index: 9000;
+  opacity: 0; transform: translateY(16px);
+  transition: all 0.3s; pointer-events: none;
+}
+#toast.show { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .stats-row { grid-template-columns: repeat(3, 1fr); }
+  main { padding: 20px 16px 48px; }
+  header { padding: 0 16px; }
+}
+@media (max-width: 640px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .filters-wrap { flex-direction: column; }
+  .filter-select, .filter-input { min-width: 100%; }
+  #last-sync { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="logo">CAP</div>
+    <div>
+      <div class="header-title">Conferência de Chamados</div>
+      <div class="header-sub">Central de Apoio Pedagógico · FMC</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      <span class="live-text">Ao vivo</span>
+    </div>
+    <span id="last-sync">—</span>
+    <button class="btn-export" onclick="exportCSV()">⬇ Exportar CSV</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card" style="--accent:#00C47A">
+      <div class="stat-label">Total</div>
+      <div class="stat-value" id="s-total">—</div>
+      <div class="stat-note">chamados registrados</div>
+    </div>
+    <div class="stat-card" style="--accent:#E8432D">
+      <div class="stat-label">Alta Urgência</div>
+      <div class="stat-value" id="s-alta">—</div>
+      <div class="stat-note" id="s-alta-pct">—</div>
+    </div>
+    <div class="stat-card" style="--accent:#F5A623">
+      <div class="stat-label">Pendentes</div>
+      <div class="stat-value" id="s-pendente">—</div>
+      <div class="stat-note">aguardando atendimento</div>
+    </div>
+    <div class="stat-card" style="--accent:#2D6BE8">
+      <div class="stat-label">Em Atendimento</div>
+      <div class="stat-value" id="s-atendendo">—</div>
+      <div class="stat-note">em andamento</div>
+    </div>
+    <div class="stat-card" style="--accent:#007A48">
+      <div class="stat-label">Concluídos</div>
+      <div class="stat-value" id="s-concluido">—</div>
+      <div class="stat-note" id="s-concluido-pct">—</div>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters-wrap">
+    <div class="filter-group">
+      <span class="filter-label">Período</span>
+      <select class="filter-select" id="f-periodo" onchange="applyFilters()">
+        <option value="todos">Todos</option>
+        <option value="hoje">Hoje</option>
+        <option value="semana">Esta semana</option>
+        <option value="mes">Este mês</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Urgência</span>
+      <select class="filter-select" id="f-urgencia" onchange="applyFilters()">
+        <option value="">Todas</option>
+        <option value="Alta">Alta</option>
+        <option value="Média">Média</option>
+        <option value="Baixa">Baixa</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Status</span>
+      <select class="filter-select" id="f-status" onchange="applyFilters()">
+        <option value="">Todos</option>
+        <option value="Pendente">Pendente</option>
+        <option value="Em atendimento">Em atendimento</option>
+        <option value="Concluído">Concluído</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Tipo</span>
+      <select class="filter-select" id="f-tipo" onchange="applyFilters()">
+        <option value="">Todos</option>
+        <option value="Professor">Professor</option>
+        <option value="Aluno">Aluno</option>
+        <option value="Funcionário">Funcionário</option>
+        <option value="Visitante">Visitante</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Busca livre</span>
+      <input class="filter-input" type="text" id="f-busca" placeholder="Sala, nome, protocolo, descrição..." oninput="applyFilters()">
+    </div>
+    <button class="btn-clear" onclick="clearFilters()">✕ Limpar</button>
+    <div class="filter-result" id="f-count">— registros</div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <div class="table-header">
+      <div>
+        <div class="table-title">Registros de Chamados</div>
+        <div class="table-sub">Edite o status diretamente na coluna — salva automaticamente na planilha</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Data / Hora</th>
+            <th>Protocolo</th>
+            <th>Sala</th>
+            <th>Categoria</th>
+            <th>Urgência</th>
+            <th>Problema</th>
+            <th>Solicitante</th>
+            <th>Tipo</th>
+            <th>Telefone</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="10">
+            <div class="spinner-wrap">
+              <div class="spinner"></div>
+              <span class="spinner-text">Carregando dados da planilha...</span>
+            </div>
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+</main>
+
+<div id="toast"></div>
+
+<script>
+const SHEET_ID   = '1pshUNeBk-30YxnuYttnVDNioI5LXrHgGQfRY21pehng';
+const APPS_URL   = 'https://script.google.com/macros/s/AKfycbxId77oG4ZTcRzXth8Xdy_WNoKaDW_Lyer8dBqkohg4yOuOy9bSQWP_VcUh-3ZGW3vn/exec';
+const PER_PAGE   = 20;
+
+// Colunas: Data(0) | Protocolo(1) | Sala(2) | Categoria(3) | Urgência(4) | Descrição(5) | Solicitante(6) | Tipo(7) | Telefone(8) | Status(9)
+const C = { DATA:0, PROTO:1, SALA:2, CAT:3, URG:4, DESC:5, NOME:6, TIPO:7, TEL:8, STATUS:9 };
+
+let allRows      = [];
+let filteredRows = [];
+let statusMap    = {};
+let currentPage  = 1;
+let chartsReady  = false;
+
+// Carrega statusMap do localStorage
+try { statusMap = JSON.parse(localStorage.getItem('cap_status') || '{}'); } catch(e) { statusMap = {}; }
+
+google.charts.load('current', { packages: ['corechart'], language: 'pt' });
+google.charts.setOnLoadCallback(() => {
+  chartsReady = true;
+  fetchData();
+});
+
+setInterval(() => { if (chartsReady) fetchData(); }, 10000);
+
+function fetchData() {
+  const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?gid=0&tq=select%20*&headers=1';
+  const q   = new google.visualization.Query(url);
+  q.send(handleResponse);
+}
+
+function handleResponse(resp) {
+  if (resp.isError()) { showToast('⚠ Erro ao carregar: ' + resp.getMessage()); return; }
+
+  const dt   = resp.getDataTable();
+  const rows = [];
+
+  for (let i = 0; i < dt.getNumberOfRows(); i++) {
+    const ncols    = dt.getNumberOfColumns();
+    const proto    = ncols > C.PROTO  ? (dt.getFormattedValue(i, C.PROTO)  || '').trim() : ('CAP-' + (i+1));
+    const statusSh = ncols > C.STATUS ? (dt.getFormattedValue(i, C.STATUS) || '').trim().toLowerCase() : '';
+    const statusLabel = statusSh.includes('conclu') ? 'Concluído'
+      : statusSh.includes('atend') ? 'Em atendimento'
+      : 'Pendente';
+    statusMap[proto] = statusLabel;
+
+    rows.push({
+      data:  dt.getFormattedValue(i, C.DATA),
+      proto,
+      sala:  (dt.getFormattedValue(i, C.SALA) || '').trim(),
+      cat:   (dt.getFormattedValue(i, C.CAT)  || '').trim(),
+      urg:   (dt.getFormattedValue(i, C.URG)  || '').trim(),
+      desc:  (dt.getFormattedValue(i, C.DESC) || '').trim(),
+      nome:  (dt.getFormattedValue(i, C.NOME) || '').trim(),
+      tipo:  ncols > C.TIPO ? (dt.getFormattedValue(i, C.TIPO) || '').trim() : '—',
+      tel:   ncols > C.TEL  ? (dt.getFormattedValue(i, C.TEL)  || '').trim() : '—',
+    });
+  }
+
+  localStorage.setItem('cap_status', JSON.stringify(statusMap));
+  allRows = rows;
+
+  const saved = currentPage;
+  applyFilters();
+  currentPage = saved;
+  renderTable();
+  renderPagination();
+  updateStats();
+  updateSync();
+}
+
+/* ── FILTERS ── */
+function applyFilters() {
+  const periodo = document.getElementById('f-periodo').value;
+  const urg     = document.getElementById('f-urgencia').value;
+  const status  = document.getElementById('f-status').value;
+  const tipo    = document.getElementById('f-tipo').value;
+  const busca   = document.getElementById('f-busca').value.toLowerCase().trim();
+
+  const now        = new Date();
+  const dayOfWeek  = now.getDay();
+  const weekStart  = new Date(now);
+  weekStart.setDate(now.getDate() + (dayOfWeek === 0 ? -6 : 1 - dayOfWeek));
+  weekStart.setHours(0,0,0,0);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  filteredRows = allRows.filter(r => {
+    if (periodo !== 'todos') {
+      const d = parseDate(r.data);
+      if (!d) return false;
+      if (periodo === 'hoje'   && !sameDay(d, now))  return false;
+      if (periodo === 'semana' && d < weekStart)      return false;
+      if (periodo === 'mes'    && d < monthStart)     return false;
+    }
+    if (urg    && r.urg  !== urg)                      return false;
+    if (status && statusMap[r.proto] !== status)       return false;
+    if (tipo   && r.tipo !== tipo)                     return false;
+    if (busca) {
+      const hay = [r.sala, r.nome, r.desc, r.cat, r.proto, r.tipo].join(' ').toLowerCase();
+      if (!hay.includes(busca)) return false;
+    }
+    return true;
+  });
+
+  currentPage = 1;
+  document.getElementById('f-count').textContent = filteredRows.length + ' registro' + (filteredRows.length !== 1 ? 's' : '');
+  renderTable();
+  renderPagination();
+}
+
+function clearFilters() {
+  ['f-periodo','f-urgencia','f-status','f-tipo'].forEach(id => document.getElementById(id).value = id === 'f-periodo' ? 'todos' : '');
+  document.getElementById('f-busca').value = '';
+  applyFilters();
+}
+
+/* ── TABLE ── */
+function renderTable() {
+  const start    = (currentPage - 1) * PER_PAGE;
+  const pageRows = [...filteredRows].reverse().slice(start, start + PER_PAGE);
+
+  if (pageRows.length === 0) {
+    document.getElementById('tbody').innerHTML = '<tr><td colspan="10"><div class="empty">Nenhum chamado encontrado com os filtros aplicados.</div></td></tr>';
+    return;
+  }
+
+  document.getElementById('tbody').innerHTML = pageRows.map(r => {
+    const urg   = r.urg || '—';
+    const urgCl = urg === 'Alta' ? 'urg-alta' : urg === 'Média' ? 'urg-media' : 'urg-baixa';
+    const urgDot = urg === 'Alta' ? '🔴' : urg === 'Média' ? '🟡' : '🟢';
+    const cat   = (r.cat || '—').split('/')[0].trim();
+    const desc  = r.desc.length > 55 ? r.desc.slice(0,55) + '…' : (r.desc || '—');
+    const sala  = (r.sala || '—').replace(/^(\d+)$/, 'Sala $1');
+    const st    = statusMap[r.proto] || 'Pendente';
+    const stCl  = st === 'Concluído' ? 's-concluido' : st === 'Em atendimento' ? 's-atendendo' : 's-pendente';
+    const opts  = ['Pendente','Em atendimento','Concluído'];
+
+    return `<tr>
+      <td><span class="date-cell">${r.data || '—'}</span></td>
+      <td><span class="proto">${r.proto}</span></td>
+      <td><span class="sala-cell">${sala}</span></td>
+      <td>${cat}</td>
+      <td><span class="urg ${urgCl}">${urgDot} ${urg}</span></td>
+      <td><span class="desc-cell" title="${r.desc}">${desc}</span></td>
+      <td>${r.nome || '—'}</td>
+      <td><span class="tipo">${r.tipo || '—'}</span></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8A9990">${r.tel || '—'}</td>
+      <td>
+        <select class="status-sel ${stCl}" onchange="setStatus('${r.proto}', this.value, this)">
+          ${opts.map(o => `<option value="${o}" ${o === st ? 'selected' : ''}>${o}</option>`).join('')}
+        </select>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── STATUS UPDATE ── */
+function setStatus(proto, val, sel) {
+  statusMap[proto] = val;
+  localStorage.setItem('cap_status', JSON.stringify(statusMap));
+
+  if (sel) {
+    sel.className = 'status-sel ' + (val === 'Concluído' ? 's-concluido' : val === 'Em atendimento' ? 's-atendendo' : 's-pendente');
+    sel.disabled  = true;
+  }
+
+  fetch(APPS_URL + '?action=updateStatus&protocolo=' + encodeURIComponent(proto) + '&status=' + encodeURIComponent(val))
+    .then(() => showToast('✓ Status atualizado: ' + val))
+    .catch(() => showToast('⚠ Salvo localmente — sem conexão'))
+    .finally(() => { if (sel) sel.disabled = false; });
+
+  updateStats();
+}
+
+/* ── PAGINATION ── */
+function renderPagination() {
+  const total = filteredRows.length;
+  const pages = Math.ceil(total / PER_PAGE);
+  const pg    = document.getElementById('pagination');
+  if (pages <= 1) { pg.innerHTML = ''; return; }
+
+  const start = (currentPage - 1) * PER_PAGE + 1;
+  const end   = Math.min(currentPage * PER_PAGE, total);
+
+  let btns = '';
+  for (let i = 1; i <= pages; i++) {
+    if (i === 1 || i === pages || Math.abs(i - currentPage) <= 1) {
+      btns += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+    } else if (!btns.endsWith('·</span>')) {
+      btns += `<span style="padding:6px 4px;color:#8A9990">·</span>`;
+    }
+  }
+
+  pg.innerHTML = `
+    <span class="page-info">${start}–${end} de ${total}</span>
+    <div class="page-btns">
+      <button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>
+      ${btns}
+      <button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>›</button>
+    </div>`;
+}
+
+function goPage(p) {
+  const pages = Math.ceil(filteredRows.length / PER_PAGE);
+  if (p < 1 || p > pages) return;
+  currentPage = p;
+  renderTable();
+  renderPagination();
+  window.scrollTo({ top: document.querySelector('.table-card').offsetTop - 80, behavior: 'smooth' });
+}
+
+/* ── STATS ── */
+function updateStats() {
+  const rows   = allRows;
+  const total  = rows.length;
+  const alta   = rows.filter(r => r.urg === 'Alta').length;
+  const pend   = rows.filter(r => (statusMap[r.proto] || 'Pendente') === 'Pendente').length;
+  const atend  = rows.filter(r => statusMap[r.proto] === 'Em atendimento').length;
+  const concl  = rows.filter(r => statusMap[r.proto] === 'Concluído').length;
+
+  document.getElementById('s-total').textContent     = total;
+  document.getElementById('s-alta').textContent      = alta;
+  document.getElementById('s-alta-pct').textContent  = total ? Math.round(alta/total*100) + '% dos chamados' : '—';
+  document.getElementById('s-pendente').textContent  = pend;
+  document.getElementById('s-atendendo').textContent = atend;
+  document.getElementById('s-concluido').textContent = concl;
+  document.getElementById('s-concluido-pct').textContent = total ? Math.round(concl/total*100) + '% resolvidos' : '—';
+}
+
+/* ── UTILS ── */
+function parseDate(s) {
+  if (!s) return null;
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  return m ? new Date(+m[3], +m[2]-1, +m[1]) : null;
+}
+function sameDay(a, b) {
+  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+}
+function updateSync() {
+  const n = new Date();
+  document.getElementById('last-sync').textContent =
+    'sync ' + String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0') + ':' + String(n.getSeconds()).padStart(2,'0');
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ── EXPORT CSV ── */
+function exportCSV() {
+  if (!allRows.length) { showToast('Nenhum dado para exportar.'); return; }
+  const rows = filteredRows.length ? filteredRows : allRows;
+  const esc  = v => '"' + String(v).replace(/"/g,'""') + '"';
+  const hdr  = ['Data/Hora','Protocolo','Sala','Categoria','Urgência','Descrição','Solicitante','Tipo','Telefone','Status'];
+  const csv  = [
+    hdr.map(esc).join(','),
+    ...[...rows].reverse().map(r => [
+      r.data, r.proto, r.sala, r.cat, r.urg,
+      r.desc, r.nome, r.tipo, r.tel,
+      statusMap[r.proto] || 'Pendente'
+    ].map(esc).join(','))
+  ].join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = 'CAP_chamados_' + new Date().toLocaleDateString('pt-BR').replace(/\//g,'-') + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exportado com ' + rows.length + ' registros ✓');
+}
+</script>
+</body>
+</html>
