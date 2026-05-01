@@ -84,21 +84,49 @@
     z-index: 0;
   }
 
-  /* ── HEADER ── */
+  /* ── TOP BAR ── */
+  .top-bar {
+    width: 100%;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+    position: relative;
+    z-index: 20;
+    overflow: hidden;
+    animation: fadeDown 0.5s ease both;
+  }
+
+  /* Filête verde idêntico ao dos .section e .title-banner */
+  .top-bar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--green), var(--green-light), var(--green), transparent);
+  }
+
+  .top-bar-inner {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HEADER (agora sem o header-top) ── */
   .header {
     width: 100%;
     max-width: 680px;
     position: relative;
     z-index: 10;
-    padding: 40px 24px 0;
+    padding: 20px 24px 0;
     animation: fadeDown 0.6s ease both;
   }
 
   .header-top {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 20px;
+    display: none;
   }
 
   .logo-circle {
@@ -984,7 +1012,7 @@
   @media (max-width: 480px) {
     body { padding: 0 0 40px 0; }
 
-    .header { padding: 20px 16px 0; }
+    .header { padding: 16px 16px 0; }
 
     .header-top { gap: 10px; }
     .logo-circle { width: 42px; height: 42px; font-size: 13px; }
@@ -1061,6 +1089,21 @@
     document.body.appendChild(p);
   }
 </script>
+
+<!-- TOP BAR VERDE -->
+<div class="top-bar">
+  <div class="top-bar-inner">
+    <div class="logo-circle">.fmc</div>
+    <div class="header-meta">
+      <div class="header-inst">FMC · Faculdade de Medicina de Campos</div>
+      <div class="header-dept">Central de Apoio Pedagógico — CAP Digital</div>
+    </div>
+    <div class="status-pill">
+      <div class="status-dot"></div>
+      <span class="status-text">Online</span>
+    </div>
+  </div>
+</div>
 
 <!-- HEADER -->
 <div class="header">
