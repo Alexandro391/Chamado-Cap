@@ -14,19 +14,20 @@
 <title>Chamado Rápido · CAP · FMC</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --green: #3aab85;
-    --green-light: #5dc9a5;
-    --green-dark: #1e6b52;
-    --green-dim: rgba(58,171,133,0.12);
+ :root {
+    --green: #2b7a6d;
+    --green-light: #3da08e;
+    --green-dark: #1a5448;
+    --green-dim: rgba(43,122,109,0.12);
     --bg: #090f0c;
     --bg2: #0d1a14;
     --bg3: #111f18;
     --text: #e8f5f0;
     --text-dim: rgba(232,245,240,0.5);
-    --border: rgba(58,171,133,0.22);
-    --border-hover: rgba(93,201,165,0.55);
+    --border: rgba(43,122,109,0.22);
+    --border-hover: rgba(61,160,142,0.55);
   }
+
 
   * { margin:0; padding:0; box-sizing:border-box; }
 
@@ -96,7 +97,7 @@
 
   .header-meta { flex: 1; }
   .header-inst {
-    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    font-size: 15px; font-weight: 700; letter-spacing: 3px;
     color: var(--green); text-transform: uppercase; opacity: 0.8;
   }
   .header-dept {
@@ -1024,8 +1025,8 @@
   </div>
 
   <div class="title-banner">
-    <div class="title-label">· Sistema de Suporte ·</div>
-    <div class="title-main">CHAMADO<br>RÁPIDO</div>
+    <div class="title-label">· Sistema de Atendimento ·</div>
+    <div class="title-main">CAP<br>FMC</div>
     <div class="title-sub">Preencha · Envie · Aguarde o atendimento</div>
   </div>
 
@@ -1069,7 +1070,7 @@
           <input type="radio" name="categoria" value="Projetor / Data Show">
           <span class="cat-icon">📽️</span>
           <div class="cat-info">
-            <div class="cat-name">Projetor</div>
+            <div class="cat-name">Projetor/Tv</div>
             <div class="cat-desc">Data Show / HDMI</div>
           </div>
           <div class="cat-check"></div>
@@ -1082,6 +1083,15 @@
             <div class="cat-desc">Login / Sistema</div>
           </div>
           <div class="cat-check"></div>
+        <label class="cat-card" onclick="selectCat(this,'Suporte Pedagógico')">
+  <input type="radio" name="categoria" value="Suporte Pedagógico">
+  <span class="cat-icon">📚</span>
+  <div class="cat-info">
+    <div class="cat-name">Suporte Pedagógico</div>
+    <div class="cat-desc">Dúvidas / Materiais / Orientação</div>
+  </div>
+  <div class="cat-check"></div>
+</label>
         </label>
         <label class="cat-card" onclick="selectCat(this,'Ar-condicionado / Climatização')">
           <input type="radio" name="categoria" value="Ar-condicionado / Climatização">
@@ -1096,7 +1106,7 @@
           <input type="radio" name="categoria" value="Som / Microfone / Áudio">
           <span class="cat-icon">🎤</span>
           <div class="cat-info">
-            <div class="cat-name">Áudio</div>
+            <div class="cat-name">Caixa de Som / Áudio</div>
             <div class="cat-desc">Som / Microfone</div>
           </div>
           <div class="cat-check"></div>
@@ -1119,12 +1129,12 @@
           </div>
           <div class="cat-check"></div>
         </label>
-        <label class="cat-card" onclick="selectCat(this,'Carteira / Mesa')">
-          <input type="radio" name="categoria" value="Carteira / Mesa">
+        <label class="cat-card" onclick="selectCat(this,'Infraestrutura')">
+          <input type="radio" name="categoria" value="Infraestrutura">
           <span class="cat-icon">🪑</span>
           <div class="cat-info">
-            <div class="cat-name">Carteira / Mesa</div>
-            <div class="cat-desc">Mobiliário da sala</div>
+            <div class="cat-name">Infraestrutura</div>
+            <div class="cat-desc">Carteira / Mesa / Mobiliário da sala</div>
           </div>
           <div class="cat-check"></div>
         </label>
