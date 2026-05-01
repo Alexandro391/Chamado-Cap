@@ -1961,11 +1961,23 @@
   function normalizeTrackerStatus(status) {
     if (typeof status === 'number' && status >= 0 && status <= 3) return status;
     const s = String(status || '').trim().toLowerCase();
-    if (!s) return 0;
+    if (!s || s === 'pendente' || s === 'aberto') return 0;
+    if (s.includes('anális') || s.includes('analis') || s.includes('análise') || s.includes('analise')) return 1;
+    if (s.includes('atend')) return 2;   // 'Em atendimento' e 'Em Atendimento'
     if (s.includes('conclu')) return 3;
-    if (s.includes('atend')) return 2;
-    if (s.includes('anális') || s.includes('analis')) return 1;
     return 0;
+  }
+
+  // Lê o status mais atualizado disponível para um protocolo:
+  // prioridade: cap_status (escrito pelo dashboard) > cap_chamados (escrito no envio)
+  function getStatusAtual(query) {
+    try {
+      const capStatus = JSON.parse(localStorage.getItem('cap_status') || '{}');
+      // cap_status usa a chave exata do protocolo
+      const keyStatus = Object.keys(capStatus).find(k => k.toUpperCase() === query);
+      if (keyStatus) return normalizeTrackerStatus(capStatus[keyStatus]);
+    } catch(e) {}
+    return null;
   }
 
   function renderTrackerResult(c) {
@@ -2029,11 +2041,18 @@
         try {
           const chamados = JSON.parse(localStorage.getItem('cap_chamados') || '{}');
           const key = Object.keys(chamados).find(k => k.toUpperCase() === query);
-          const statusNormalizado = normalizeTrackerStatus(data.status);
-          let dadosRender = { ...data, status: statusNormalizado };
+
+          // Normaliza status vindo da planilha
+          let statusFinal = normalizeTrackerStatus(data.status);
+
+          // cap_status (dashboard) tem prioridade máxima — é a fonte de verdade do operador
+          const statusDashboard = getStatusAtual(query);
+          if (statusDashboard !== null) statusFinal = statusDashboard;
+
+          let dadosRender = { ...data, status: statusFinal };
 
           if (key) {
-            chamados[key] = { ...chamados[key], ...data, status: statusNormalizado };
+            chamados[key] = { ...chamados[key], ...data, status: statusFinal };
             localStorage.setItem('cap_chamados', JSON.stringify(chamados));
             dadosRender = chamados[key];
           }
@@ -2054,7 +2073,10 @@
       const chamados = JSON.parse(localStorage.getItem('cap_chamados') || '{}');
       const key = Object.keys(chamados).find(k => k.toUpperCase() === query);
 
-      if (!key) {
+      // Mesmo offline: aplica status do dashboard se disponível
+      const statusDashboard = getStatusAtual(query);
+
+      if (!key && statusDashboard === null) {
         notFound.classList.add('show');
         result.classList.remove('show');
         return;
@@ -2062,7 +2084,11 @@
 
       notFound.classList.remove('show');
       result.classList.add('show');
-      renderTrackerResult(chamados[key]);
+
+      let dadosRender = key ? { ...chamados[key] } : { protocolo: query };
+      if (statusDashboard !== null) dadosRender.status = statusDashboard;
+
+      renderTrackerResult(dadosRender);
     } catch(e) {
       notFound.classList.add('show');
       result.classList.remove('show');
