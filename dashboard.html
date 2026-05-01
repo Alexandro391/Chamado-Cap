@@ -693,6 +693,21 @@ function setStatus(proto, val, selectEl) {
     selectEl.disabled = true;
   }
 
+  // Sincroniza também no cap_chamados (lido pelo index/tracker do usuário)
+  // Converte label do dashboard → número que o index entende (0-3)
+  const statusNumerico = val === 'Concluído' ? 3
+    : val === 'Em atendimento' ? 2
+    : val === 'Em Análise' ? 1
+    : 0;
+  try {
+    const chamados = JSON.parse(localStorage.getItem('cap_chamados') || '{}');
+    const key = Object.keys(chamados).find(k => k.toUpperCase() === proto.toUpperCase());
+    if (key) {
+      chamados[key].status = statusNumerico;
+      localStorage.setItem('cap_chamados', JSON.stringify(chamados));
+    }
+  } catch(e) {}
+
   // Envia atualização ao Apps Script para gravar na planilha
   const APPS_URL = 'https://script.google.com/macros/s/AKfycbxId77oG4ZTcRzXth8Xdy_WNoKaDW_Lyer8dBqkohg4yOuOy9bSQWP_VcUh-3ZGW3vn/exec';
   fetch(APPS_URL + '?action=updateStatus&protocolo=' + encodeURIComponent(proto) + '&status=' + encodeURIComponent(val))
