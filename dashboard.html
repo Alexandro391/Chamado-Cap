@@ -632,9 +632,42 @@ let allRows = [];
 let filteredRows = [];
 let statusMap = {};
 let currentPage = 1;
-// pendingStatus: protocolos com mudança local ainda não confirmada pela planilha.
-// Enquanto um protocolo estiver aqui, o auto-refresh NÃO sobrescreve o valor local.
-let pendingStatus = {};
+
+// pendingStatus: persiste no localStorage com timestamp de expiração (60s).
+// Mesmo após reload da página, o status local é preservado enquanto a planilha não confirmar.
+const PENDING_TTL = 60000; // 60 segundos
+
+function loadPendingStatus() {
+  try {
+    const raw = JSON.parse(localStorage.getItem('cap_pending') || '{}');
+    const now = Date.now();
+    // Remove entradas expiradas
+    Object.keys(raw).forEach(k => { if (raw[k] < now) delete raw[k]; });
+    return raw;
+  } catch(e) { return {}; }
+}
+
+function savePendingStatus(pending) {
+  try { localStorage.setItem('cap_pending', JSON.stringify(pending)); } catch(e) {}
+}
+
+function markPending(proto) {
+  const pending = loadPendingStatus();
+  pending[proto] = Date.now() + PENDING_TTL;
+  savePendingStatus(pending);
+}
+
+function clearPending(proto) {
+  const pending = loadPendingStatus();
+  delete pending[proto];
+  savePendingStatus(pending);
+}
+
+function isPending(proto) {
+  const pending = loadPendingStatus();
+  return !!pending[proto];
+}
+
 // FIX BUG 1 + 2: carregar statusMap imediatamente, antes de qualquer uso
 loadStatusMap();
 
@@ -726,7 +759,8 @@ function setStatus(proto, val, selectEl) {
   statusMap[proto] = val;
   saveStatusMap();
 
-  pendingStatus[proto] = true;
+  // Marca como pendente no localStorage (persiste entre reloads)
+  markPending(proto);
 
   if (selectEl) {
     selectEl.className = 'status-select ' + getStatusClass(val);
@@ -741,7 +775,8 @@ function setStatus(proto, val, selectEl) {
   const APPS_URL = 'https://script.google.com/macros/s/AKfycbxId77oG4ZTcRzXth8Xdy_WNoKaDW_Lyer8dBqkohg4yOuOy9bSQWP_VcUh-3ZGW3vn/exec';
   fetch(APPS_URL + '?action=updateStatus&protocolo=' + encodeURIComponent(proto) + '&status=' + encodeURIComponent(val))
     .then(() => {
-      delete pendingStatus[proto];
+      // Aguarda 5s antes de liberar o lock, dando tempo à planilha de atualizar
+      setTimeout(() => clearPending(proto), 5000);
       if (numWa && val !== 'Pendente') {
         const msg = montarMensagemWhatsApp(proto, row.sala, row.categoria, val);
         const link = `https://wa.me/${numWa}?text=${msg}`;
@@ -844,7 +879,7 @@ function handleQueryResponse(resp) {
         : statusRaw.includes('atend') ? 'Em atendimento'
         : 'Pendente';
       // Só sincroniza da planilha se NÃO há alteração local pendente de confirmação
-      if (!pendingStatus[proto]) {
+      if (!isPending(proto)) {
         statusMap[proto] = statusLabel;
       }
     }
@@ -1019,7 +1054,7 @@ function renderTable() {
       const sel = existing.querySelector('.status-select');
       const currentVal = sel ? sel.value : null;
       const newVal = getStatus(r.proto);
-      if (sel && currentVal !== newVal && !pendingStatus[r.proto]) {
+      if (sel && currentVal !== newVal && !isPending(r.proto)) {
         sel.value = newVal;
         sel.className = 'status-select ' + getStatusClass(newVal);
       }
@@ -1319,6 +1354,9 @@ setInterval(() => {
   // Não atualiza se houver selects de status com foco (operador está interagindo)
   const activeEl = document.activeElement;
   if (activeEl && activeEl.classList.contains('status-select')) return;
+  // Não atualiza se houver pendências locais recentes
+  const pending = loadPendingStatus();
+  if (Object.keys(pending).length > 0) return;
   fetchAndDraw();
 }, 30000);
 </script>
