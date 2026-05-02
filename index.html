@@ -1332,10 +1332,10 @@
       <div class="field-error" id="errTipo"><span class="field-error-icon">⚠️</span> Selecione o tipo de solicitante.</div>
     </div>
 
-    <div class="field">
-      <div class="field-label">Telefone / WhatsApp <span style="color:var(--text-dim);font-size:10px;">(opcional)</span></div>
+    <div class="field" id="fieldTel">
       <input type="tel" id="telefone" placeholder="(22) 99999-9999" maxlength="20" autocomplete="tel">
-      <div class="helper">Apenas se quiser ser contatado sobre o chamado.</div>
+      <div class="helper">Necessário para receber atualizações sobre o seu chamado.</div>
+      <div class="field-error" id="errTel"><span class="field-error-icon">&#9888;&#65039;</span> Informe um telefone válido com DDD.</div>
     </div>
 
     <!-- Resumo do chamado -->
@@ -1403,7 +1403,7 @@
     <ul>
       <li><strong>Nome completo</strong> — identificação do solicitante</li>
       <li><strong>Tipo de vínculo</strong> — Professor, Aluno, Funcionário ou Visitante</li>
-      <li><strong>Telefone (WhatsApp)</strong> — opcional, para retorno sobre o chamado</li>
+      <li><strong>Telefone (WhatsApp)</strong> — para retorno e notificações sobre o chamado</li>
       <li><strong>Local (sala/laboratório)</strong> — identificação do espaço físico com o problema</li>
     </ul>
 
@@ -1721,7 +1721,7 @@
     return nome.length >= 3 && nome.length <= 100 && /^[\p{L}\p{M}\s'.,-]+$/u.test(nome);
   }
   function isTelValido(tel) {
-    if (!tel) return true; // opcional
+    if (!tel) return false; // obrigatório
     return /^[\d\s\(\)\+\-]{7,20}$/.test(tel);
   }
 
@@ -1858,12 +1858,8 @@
     if(!nome || !isNomeValido(nome)) { showErr('errNome', 'fieldNome'); hasError = true; }
     if(!selectedTipo) { showErr('errTipo', 'fieldTipo'); hasError = true; }
     if(!document.getElementById('lgpdCheck').checked) { showErr('errLgpd', 'fieldLgpd'); hasError = true; }
-    // ✅ SEGURANÇA: valida telefone se preenchido
-    if(tel && !isTelValido(tel)) {
-      const telField = document.getElementById('telefone');
-      telField.style.borderColor = 'rgba(255,80,80,0.6)';
-      hasError = true;
-    }
+    // Telefone agora obrigatório
+    if(!tel || !isTelValido(tel)) { showErr('errTel', 'fieldTel'); hasError = true; }
 
     if(hasError) {
       document.querySelector('.field-error.show')?.scrollIntoView({behavior:'smooth', block:'center'});
@@ -1961,23 +1957,11 @@
   function normalizeTrackerStatus(status) {
     if (typeof status === 'number' && status >= 0 && status <= 3) return status;
     const s = String(status || '').trim().toLowerCase();
-    if (!s || s === 'pendente' || s === 'aberto') return 0;
-    if (s.includes('anális') || s.includes('analis') || s.includes('análise') || s.includes('analise')) return 1;
-    if (s.includes('atend')) return 2;   // 'Em atendimento' e 'Em Atendimento'
+    if (!s) return 0;
     if (s.includes('conclu')) return 3;
+    if (s.includes('atend')) return 2;
+    if (s.includes('anális') || s.includes('analis')) return 1;
     return 0;
-  }
-
-  // Lê o status mais atualizado disponível para um protocolo:
-  // prioridade: cap_status (escrito pelo dashboard) > cap_chamados (escrito no envio)
-  function getStatusAtual(query) {
-    try {
-      const capStatus = JSON.parse(localStorage.getItem('cap_status') || '{}');
-      // cap_status usa a chave exata do protocolo
-      const keyStatus = Object.keys(capStatus).find(k => k.toUpperCase() === query);
-      if (keyStatus) return normalizeTrackerStatus(capStatus[keyStatus]);
-    } catch(e) {}
-    return null;
   }
 
   function renderTrackerResult(c) {
@@ -2041,18 +2025,11 @@
         try {
           const chamados = JSON.parse(localStorage.getItem('cap_chamados') || '{}');
           const key = Object.keys(chamados).find(k => k.toUpperCase() === query);
-
-          // Normaliza status vindo da planilha
-          let statusFinal = normalizeTrackerStatus(data.status);
-
-          // cap_status (dashboard) tem prioridade máxima — é a fonte de verdade do operador
-          const statusDashboard = getStatusAtual(query);
-          if (statusDashboard !== null) statusFinal = statusDashboard;
-
-          let dadosRender = { ...data, status: statusFinal };
+          const statusNormalizado = normalizeTrackerStatus(data.status);
+          let dadosRender = { ...data, status: statusNormalizado };
 
           if (key) {
-            chamados[key] = { ...chamados[key], ...data, status: statusFinal };
+            chamados[key] = { ...chamados[key], ...data, status: statusNormalizado };
             localStorage.setItem('cap_chamados', JSON.stringify(chamados));
             dadosRender = chamados[key];
           }
@@ -2073,10 +2050,7 @@
       const chamados = JSON.parse(localStorage.getItem('cap_chamados') || '{}');
       const key = Object.keys(chamados).find(k => k.toUpperCase() === query);
 
-      // Mesmo offline: aplica status do dashboard se disponível
-      const statusDashboard = getStatusAtual(query);
-
-      if (!key && statusDashboard === null) {
+      if (!key) {
         notFound.classList.add('show');
         result.classList.remove('show');
         return;
@@ -2084,11 +2058,7 @@
 
       notFound.classList.remove('show');
       result.classList.add('show');
-
-      let dadosRender = key ? { ...chamados[key] } : { protocolo: query };
-      if (statusDashboard !== null) dadosRender.status = statusDashboard;
-
-      renderTrackerResult(dadosRender);
+      renderTrackerResult(chamados[key]);
     } catch(e) {
       notFound.classList.add('show');
       result.classList.remove('show');
