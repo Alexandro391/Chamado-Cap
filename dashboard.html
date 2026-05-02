@@ -296,10 +296,25 @@ tbody tr:last-child { border-bottom: none; }
   transition: border-color 0.2s, background 0.2s;
 }
 .status-select:focus { border-color: var(--g3); }
-/* FIX BUG 3: classes aplicadas via JS, background não pode ser 'transparent' */
 .status-select.badge-pendente  { background: #FFF4E5; color: #C47A1A; border-color: #f4c97a; }
 .status-select.badge-atendendo { background: #E8F0FF; color: #3B5CC4; border-color: #9aafe0; }
 .status-select.badge-concluido { background: #E8F7F1; color: #1A7A52; border-color: #7abfa0; }
+
+/* WhatsApp notify button */
+.btn-whatsapp {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #25D366;
+  border: none; border-radius: 6px;
+  padding: 5px 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px; font-weight: 700;
+  color: #fff; cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.1s;
+  white-space: nowrap;
+}
+.btn-whatsapp:hover { background: #1ebe5d; transform: translateY(-1px); }
+.btn-whatsapp svg { flex-shrink: 0; }
 
 /* Pagination */
 .pagination {
@@ -342,8 +357,10 @@ footer strong { color: var(--g2); }
   opacity: 0; transform: translateY(16px);
   transition: all 0.3s;
   pointer-events: none;
+  max-width: 420px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
 }
-#toast.show { opacity: 1; transform: translateY(0); }
+#toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
 
 /* Responsive */
 @media (max-width: 1024px) {
@@ -681,11 +698,34 @@ function getStatus(proto) {
   return statusMap[proto] || 'Pendente';
 }
 
+// Formata número para wa.me: remove tudo exceto dígitos, garante 55 no início
+function formatarTelWhatsApp(tel) {
+  const digits = tel.replace(/\D/g, '');
+  if (!digits || digits.length < 8) return null;
+  // Já começa com 55 (código Brasil)?
+  if (digits.startsWith('55') && digits.length >= 12) return digits;
+  // Tem DDD (10 ou 11 dígitos)?
+  if (digits.length === 10 || digits.length === 11) return '55' + digits;
+  return null;
+}
+
+function montarMensagemWhatsApp(proto, sala, categoria, status) {
+  const statusTexto = status === 'Concluído'      ? 'Concluído ✅'
+                    : status === 'Em atendimento'  ? 'Em atendimento 🔧'
+                    : 'Em análise 👀';
+  const msg = `*CAP Digital · FMC*\n\nOlá! Seu chamado foi atualizado.\n\n`
+    + `🎫 Protocolo: *${proto}*\n`
+    + `📍 Local: ${sala}\n`
+    + `🔧 Categoria: ${categoria}\n`
+    + `📊 Status: *${statusTexto}*\n\n`
+    + `Acompanhe pelo link do formulário ou aguarde nosso contato.`;
+  return encodeURIComponent(msg);
+}
+
 function setStatus(proto, val, selectEl) {
   statusMap[proto] = val;
   saveStatusMap();
 
-  // Marca como pendente: impede que o próximo auto-refresh sobrescreva essa mudança
   pendingStatus[proto] = true;
 
   if (selectEl) {
@@ -693,32 +733,31 @@ function setStatus(proto, val, selectEl) {
     selectEl.disabled = true;
   }
 
-  // Sincroniza também no cap_chamados (lido pelo index/tracker do usuário)
-  // Converte label do dashboard → número que o index entende (0-3)
-  const statusNumerico = val === 'Concluído' ? 3
-    : val === 'Em atendimento' ? 2
-    : val === 'Em Análise' ? 1
-    : 0;
-  try {
-    const chamados = JSON.parse(localStorage.getItem('cap_chamados') || '{}');
-    const key = Object.keys(chamados).find(k => k.toUpperCase() === proto.toUpperCase());
-    if (key) {
-      chamados[key].status = statusNumerico;
-      localStorage.setItem('cap_chamados', JSON.stringify(chamados));
-    }
-  } catch(e) {}
+  // Encontra a linha do protocolo para pegar telefone, sala e categoria
+  const row = allRows.find(r => r.proto === proto);
+  const tel = row ? (row.telefone || '').trim() : '';
+  const numWa = formatarTelWhatsApp(tel);
 
-  // Envia atualização ao Apps Script para gravar na planilha
   const APPS_URL = 'https://script.google.com/macros/s/AKfycbxId77oG4ZTcRzXth8Xdy_WNoKaDW_Lyer8dBqkohg4yOuOy9bSQWP_VcUh-3ZGW3vn/exec';
   fetch(APPS_URL + '?action=updateStatus&protocolo=' + encodeURIComponent(proto) + '&status=' + encodeURIComponent(val))
     .then(() => {
-      showToast('✓ Status atualizado: ' + val);
-      // Confirmado na planilha: remove da fila de pendentes
       delete pendingStatus[proto];
+      if (numWa && val !== 'Pendente') {
+        const msg = montarMensagemWhatsApp(proto, row.sala, row.categoria, val);
+        const link = `https://wa.me/${numWa}?text=${msg}`;
+        showToast(
+          `✓ Status: ${val} &nbsp;·&nbsp; `
+          + `<a href="${link}" target="_blank" class="btn-whatsapp">`
+          + `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`
+          + ` Notificar via WhatsApp</a>`,
+          8000
+        );
+      } else {
+        showToast('✓ Status atualizado: ' + val);
+      }
     })
     .catch(() => {
       showToast('⚠ Status salvo localmente (sem conexão)');
-      // Mantém pendente para tentar proteger na próxima sincronização
     })
     .finally(() => {
       if (selectEl) selectEl.disabled = false;
@@ -1265,12 +1304,12 @@ function showError(msg) {
   });
 }
 
-function showToast(msg) {
+function showToast(msg, duration) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
+  t.innerHTML = msg;
   t.classList.add('show');
   clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+  t._timer = setTimeout(() => t.classList.remove('show'), duration || 3000);
 }
 
 /* ── AUTO REFRESH ── */
