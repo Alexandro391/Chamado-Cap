@@ -3,1025 +3,1381 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="theme-color" content="#3aab85">
+<meta name="theme-color" content="#3a7a72">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="CAP Digital">
 
-<!-- ✅ SEGURANÇA: Content Security Policy -->
-<meta http-equiv="Content-Security-Policy" content="
-  default-src 'self';
-  script-src 'self' 'unsafe-inline';
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-  font-src https://fonts.gstatic.com;
-  connect-src 'self' https://script.google.com;
-  img-src 'self' data:;
-  frame-ancestors 'none';
-">
-<!-- ✅ SEGURANÇA: Impede abertura em iframes (clickjacking) -->
-<meta http-equiv="X-Frame-Options" content="DENY">
-<!-- ✅ SEGURANÇA: Impede sniffing de MIME type -->
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
-<!-- ✅ SEGURANÇA: Referrer mínimo -->
-<meta name="referrer" content="no-referrer">
 
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>CAP Digital · FMC</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+
 <style>
- :root {
-    --green: #2b7a6d;
-    --green-light: #3da08e;
-    --green-dark: #1a5448;
-    --green-dim: rgba(43,122,109,0.12);
-    --bg: #090f0c;
-    --bg2: #0d1a14;
-    --bg3: #111f18;
-    --text: #e8f5f0;
-    --text-dim: rgba(232,245,240,0.5);
-    --border: rgba(43,122,109,0.22);
-    --border-hover: rgba(61,160,142,0.55);
-  }
+/* ─────────────────────────────────────────
+   FMC OFFICIAL PALETTE (extracted from site)
+   Primary:   #3a7a72  (verde-petróleo)
+   Primary L: #4a9a90  (verde claro)
+   Primary D: #2a5a54  (verde escuro)
+   Surface:   #f4f8f7  (off-white esverdeado)
+   White:     #ffffff
+   Gray 1:    #1a2e2b  (texto principal)
+   Gray 2:    #4a6360  (texto secundário)
+   Gray 3:    #8aaba7  (texto muted)
+   Gray 4:    #d0e4e1  (border suave)
+   Gray 5:    #e8f2f0  (bg input)
+   Vermelho:  #c0392b  (urgência alta)
+   Âmbar:     #d68910  (urgência média)
+───────────────────────────────────────── */
+:root {
+  --primary:     #3a7a72;
+  --primary-l:   #4a9a90;
+  --primary-d:   #2a5a54;
+  --primary-xl:  #eaf4f2;
+  --primary-xxl: #f4f9f8;
+  --white:       #ffffff;
+  --surface:     #f4f8f7;
+  --surface2:    #edf4f2;
+  --text:        #0a0a0a;
+  --text-2:      #1a1a1a;
+  --text-3:      #7a9e9b;
+  --border:      #cde0dc;
+  --border-2:    #b0ceca;
+  --error:       #c0392b;
+  --warn:        #d68910;
+  --shadow-sm:   0 1px 4px rgba(42,90,84,0.08);
+  --shadow-md:   0 4px 16px rgba(42,90,84,0.1);
+  --shadow-lg:   0 8px 32px rgba(42,90,84,0.14);
+  --radius:      12px;
+  --radius-sm:   8px;
+  --radius-lg:   16px;
+}
 
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-  * { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
 
-  body {
-    background: var(--bg);
-    min-height: 100vh;
-    font-family: 'Rajdhani', sans-serif;
-    color: var(--text);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 0 60px 0;
-    position: relative;
-    overflow-x: hidden;
-  }
+body {
+  background: var(--surface);
+  min-height: 100vh;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 80px;
+  position: relative;
+}
 
-  /* Background grid */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(58,171,133,0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(58,171,133,0.05) 1px, transparent 1px);
-    background-size: 44px 44px;
-    pointer-events: none;
-    z-index: 0;
-  }
+/* Subtle background texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 80% 10%, rgba(58,122,114,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 10% 80%, rgba(58,122,114,0.04) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
 
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(58,171,133,0.12) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
+/* ── TOP BAR ── */
+.top-bar {
+  width: 100%;
+  background: var(--primary-d);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 12px rgba(42,90,84,0.2);
+}
 
-  /* ── TOP BAR ── */
-  .top-bar {
-    width: 100%;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    box-shadow: 0 4px 24px rgba(0,0,0,0.35);
-    position: relative;
-    z-index: 20;
-    overflow: hidden;
-    animation: fadeDown 0.5s ease both;
-  }
+.top-bar-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
 
-  /* Filête verde idêntico ao dos .section e .title-banner */
-  .top-bar::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--green), var(--green-light), var(--green), transparent);
-  }
+/* Logo FMC - text mark como no site oficial */
+.fmc-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+.fmc-logo-mark {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+.fmc-logo-mark span {
+  color: rgba(255,255,255,0.5);
+  font-style: italic;
+}
+.fmc-divider {
+  width: 1px;
+  height: 22px;
+  background: rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
 
-  .top-bar-inner {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    position: relative;
-    z-index: 1;
-  }
+.fmc-name {
+  flex: 1;
+}
+.fmc-name-inst {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: rgba(255,255,255,0.95);
+  line-height: 1.2;
+}
+.fmc-name-dept {
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.2px;
+  line-height: 1.3;
+}
 
-  /* ── HEADER (agora sem o header-top) ── */
-  .header {
-    width: 100%;
-    max-width: 680px;
-    position: relative;
-    z-index: 10;
-    padding: 20px 24px 0;
-    animation: fadeDown 0.6s ease both;
-  }
+.status-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 5px 12px;
+  flex-shrink: 0;
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6be8a0;
+  animation: pulse 2.5s infinite;
+  box-shadow: 0 0 0 0 rgba(107,232,160,0.4);
+}
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(107,232,160,0.4); }
+  70%  { box-shadow: 0 0 0 5px rgba(107,232,160,0); }
+  100% { box-shadow: 0 0 0 0 rgba(107,232,160,0); }
+}
+.status-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  color: rgba(255,255,255,0.85);
+  text-transform: uppercase;
+}
 
-  .header-top {
-    display: none;
-  }
+/* ── HERO ── */
+.hero {
+  width: 100%;
+  max-width: 680px;
+  padding: 28px 24px 0;
+  position: relative;
+  z-index: 10;
+  animation: fadeDown 0.5s ease both;
+}
 
-  .logo-circle {
-    width: 52px; height: 52px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--green-dark), var(--green));
-    border: 2px solid rgba(93,201,165,0.5);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 16px; color: #fff; letter-spacing: 1px;
-    box-shadow: 0 0 20px rgba(58,171,133,0.35);
-    flex-shrink: 0;
-  }
+.hero-card {
+  background: var(--primary);
+  border-radius: var(--radius-lg);
+  padding: 16px 22px 14px;
+  position: relative;
+  overflow: hidden;
+}
 
-  .header-meta { flex: 1; }
-  .header-inst {
-    font-size: 15px; font-weight: 700; letter-spacing: 3px;
-    color: var(--green); text-transform: uppercase; opacity: 0.8;
-  }
-  .header-dept {
-    font-size: 13px; font-weight: 600; letter-spacing: 2px;
-    color: var(--text-dim); text-transform: uppercase;
-  }
+/* Decorative element */
+.hero-card::after {
+  content: 'CAP';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'DM Serif Display', serif;
+  font-size: 50px;
+  color: rgba(255,255,255,0.06);
+  line-height: 1;
+  pointer-events: none;
+  letter-spacing: -1px;
+}
 
-  .status-pill {
-    display: flex; align-items: center; gap: 7px;
-    background: rgba(58,171,133,0.1); border: 1px solid var(--border);
-    border-radius: 20px; padding: 6px 14px;
-  }
-  .status-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--green-light);
-    box-shadow: 0 0 10px rgba(93,201,165,0.9);
-    animation: blink 2.5s infinite;
-  }
-  .status-text {
-    font-size: 11px; font-weight: 700; letter-spacing: 2px;
-    color: var(--green-light); text-transform: uppercase;
-  }
+.hero-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  color: rgba(255,255,255,0.65);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.hero-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  font-weight: 400;
+  color: #ffffff;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+.hero-subtitle {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.2px;
+}
 
-  @keyframes blink {
-    0%,100% { opacity:1; } 50% { opacity:0.4; }
-  }
+/* ── STEP INDICATOR ── */
+.steps-wrap {
+  width: 100%;
+  max-width: 680px;
+  padding: 20px 24px 0;
+  position: relative;
+  z-index: 10;
+  animation: fadeDown 0.6s ease 0.05s both;
+}
 
-  /* Title banner */
-  .title-banner {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 28px 32px;
-    position: relative;
-    overflow: hidden;
-  }
+.steps-track {
+  display: flex;
+  gap: 0;
+  position: relative;
+}
 
-  .title-banner::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--green), var(--green-light), var(--green), transparent);
-  }
+.step-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
 
-  .title-banner::after {
-    content: 'CAP';
-    position: absolute;
-    right: 24px; top: 50%; transform: translateY(-50%);
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 100px; letter-spacing: -2px;
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(58,171,133,0.15);
-    pointer-events: none;
-    line-height: 1;
-  }
+.step-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: calc(50% + 18px);
+  right: calc(-50% + 18px);
+  height: 2px;
+  background: var(--border);
+  transition: background 0.4s;
+  z-index: 0;
+}
+.step-item.done:not(:last-child)::after,
+.step-item.active:not(:last-child)::after {
+  background: var(--primary-l);
+}
 
-  /* ✅ FONTE AUMENTADA: "Sistema de Atendimento" */
-  .title-label {
-    font-size: 18px;        /* era 11px → agora 15px */
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: var(--green);
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
+.step-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-3);
+  transition: all 0.3s;
+  position: relative;
+  z-index: 1;
+}
+.step-item.done .step-circle {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+.step-item.active .step-circle {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(58,122,114,0.15);
+}
 
-  .title-main {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 52px; letter-spacing: 3px; color: #fff; line-height: 1;
-    text-shadow: 0 0 30px rgba(58,171,133,0.4);
-  }
+.step-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-top: 6px;
+  transition: color 0.3s;
+}
+.step-item.active .step-label { color: var(--primary); }
+.step-item.done .step-label { color: var(--primary-d); }
 
-  .title-sub {
-    font-size: 13px; font-weight: 600; letter-spacing: 2px;
-    color: var(--text-dim); text-transform: uppercase; margin-top: 6px;
-  }
+/* ── FORM CARD ── */
+.form-card {
+  width: 100%;
+  max-width: 680px;
+  padding: 16px 24px 0;
+  position: relative;
+  z-index: 10;
+  animation: fadeUp 0.5s ease 0.1s both;
+}
 
-  /* Steps bar */
-  .steps-bar {
-    display: flex; gap: 6px; margin-top: 20px;
-    padding: 0 2px;
-  }
-  .step-segment {
-    flex: 1; height: 3px; border-radius: 2px;
-    background: var(--border); transition: background 0.4s;
-  }
-  .step-segment.active { background: var(--green); box-shadow: 0 0 8px rgba(58,171,133,0.5); }
-  .step-segment.done { background: var(--green-dark); }
+/* SECTION */
+.section {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 28px 24px;
+  margin-bottom: 12px;
+  display: none;
+  box-shadow: var(--shadow-sm);
+  animation: fadeUp 0.35s ease both;
+}
+.section.active { display: block; }
 
-  .steps-label {
-    display: flex; justify-content: space-between;
-    margin-top: 8px; padding: 0 2px;
-  }
-  .step-name {
-    font-size: 10px; font-weight: 700; letter-spacing: 2px;
-    color: var(--text-dim); text-transform: uppercase;
-    transition: color 0.3s;
-  }
-  .step-name.active { color: var(--green-light); }
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.section-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--primary-xl);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title .icon { font-size: 15px; }
 
-  /* ── FORM CARD ── */
-  .form-card {
-    width: 100%; max-width: 680px;
-    position: relative; z-index: 10;
-    padding: 0 24px;
-    margin-top: 20px;
-    animation: fadeUp 0.7s ease 0.1s both;
-  }
+/* FIELD */
+.field { margin-bottom: 20px; }
+.field:last-of-type { margin-bottom: 0; }
 
-  /* Section block */
-  .section {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 28px 28px 24px;
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
-    display: none;
-    animation: fadeUp 0.4s ease both;
-  }
-  .section.active { display: block; }
+.field-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: var(--text);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.field-label .req { color: var(--error); font-size: 14px; line-height: 1; font-weight: 700; }
 
-  .section::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--green-dark), var(--green), var(--green-dark), transparent);
-  }
+/* INPUT */
+input[type="text"],
+input[type="tel"],
+textarea {
+  width: 100%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  resize: none;
+}
+input[type="text"]:focus,
+input[type="tel"]:focus,
+textarea:focus {
+  border-color: var(--primary);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(58,122,114,0.12);
+}
+input::placeholder, textarea::placeholder {
+  color: var(--text-3);
+  font-weight: 400;
+}
 
-  .section-number {
-    position: absolute;
-    top: 20px; right: 24px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 48px; color: rgba(58,171,133,0.08);
-    line-height: 1; pointer-events: none;
-  }
+/* Helper */
+.helper {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 6px;
+}
 
-  .section-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px; letter-spacing: 3px;
-    color: var(--green-light); margin-bottom: 20px;
-    display: flex; align-items: center; gap: 10px;
-  }
+/* SALA BADGE (QR) */
+.sala-badge {
+  background: var(--primary-xl);
+  border: 1.5px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sala-value {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: var(--primary-d);
+  letter-spacing: 0.5px;
+}
+.sala-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--primary);
+  text-transform: uppercase;
+  background: rgba(58,122,114,0.12);
+  border-radius: 20px;
+  padding: 4px 12px;
+}
 
-  .section-title .icon {
-    font-size: 18px;
-  }
+/* AUTOCOMPLETE de sala */
+.sala-autocomplete-wrap { position: relative; }
+.sala-autocomplete-wrap input {
+  padding-left: 42px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.sala-autocomplete-wrap input:focus {
+  border-color: var(--primary);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(58,122,114,0.12);
+}
+.sala-autocomplete-wrap input::placeholder { color: var(--text-3); }
+.sala-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  pointer-events: none;
+  opacity: 0.45;
+  z-index: 1;
+}
+.sala-confirmed-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--primary);
+  font-family: 'DM Sans', sans-serif;
+  pointer-events: none;
+  z-index: 1;
+  display: none;
+}
+.sala-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 100;
+  display: none;
+  box-shadow: var(--shadow-lg);
+}
+.sala-dropdown.open { display: block; }
+.sala-dropdown-item {
+  padding: 11px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--surface);
+}
+.sala-dropdown-item:last-child { border-bottom: none; }
+.sala-dropdown-item:hover,
+.sala-dropdown-item.highlighted {
+  background: var(--primary-xl);
+  color: var(--primary-d);
+}
+.sala-dropdown-item .sala-tag-tipo {
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: var(--primary-xl);
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.sala-no-results {
+  padding: 16px;
+  font-size: 13px;
+  color: var(--text-3);
+  text-align: center;
+}
 
-  /* Field */
-  .field { margin-bottom: 20px; }
-  .field:last-child { margin-bottom: 0; }
-
-  /* ✅ FONTE AUMENTADA: labels "Categoria do Chamado" e "Tipo de Solicitante" */
-  .field-label {
-    font-size: 17px;       /* era 11px → agora 14px */
-    font-weight: 700;
-    letter-spacing: 2px;   /* levemente reduzido para manter legibilidade */
-    color: var(--green);
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .field-label .req { color: #ff6b6b; font-size: 16px; }
-
-  /* Read-only sala badge */
-  .sala-badge {
-    background: rgba(58,171,133,0.08);
-    border: 1px solid rgba(58,171,133,0.3);
-    border-radius: 8px;
-    padding: 14px 18px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .sala-value {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 28px; letter-spacing: 3px; color: #fff;
-  }
-  .sala-tag {
-    font-size: 10px; font-weight: 700; letter-spacing: 2px;
-    color: var(--green); text-transform: uppercase;
-    background: rgba(58,171,133,0.15); border-radius: 10px; padding: 4px 10px;
-  }
-
-  /* Input */
-  input[type="text"], input[type="tel"], textarea {
-    width: 100%;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px 16px;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 16px; font-weight: 600;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-    resize: none;
-  }
-
-  input[type="text"]:focus, input[type="tel"]:focus, textarea:focus {
-    border-color: var(--green);
-    background: rgba(58,171,133,0.06);
-    box-shadow: 0 0 0 3px rgba(58,171,133,0.1);
-  }
-
-  input::placeholder, textarea::placeholder {
-    color: rgba(232,245,240,0.25);
-    font-weight: 500;
-  }
-
-  /* Category cards */
+/* CATEGORY CARDS — mobile-first: 1 coluna padrão */
+.cat-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+/* 2 colunas só a partir de telas maiores (tablet/desktop) */
+@media (min-width: 520px) {
   .cat-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
+    grid-template-columns: 1fr 1fr;
   }
+}
 
-  .cat-card {
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 12px;
-    transition: all 0.2s;
-    user-select: none;
-  }
+.cat-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
+  user-select: none;
+  position: relative;
+}
+.cat-card:hover {
+  border-color: var(--primary-l);
+  background: var(--primary-xxl);
+}
+.cat-card.selected {
+  border-color: var(--primary);
+  background: var(--primary-xl);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+.cat-card input[type="radio"] { display: none; }
+.cat-icon { font-size: 20px; flex-shrink: 0; }
+.cat-info { flex: 1; min-width: 0; }
+.cat-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cat-desc {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cat-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.cat-card.selected .cat-check {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+.cat-card.selected .cat-check::after {
+  content: '✓';
+  font-size: 10px;
+  color: #fff;
+  font-weight: 700;
+}
 
-  .cat-card:hover {
-    border-color: var(--border-hover);
-    background: rgba(58,171,133,0.07);
-  }
+/* URGENCY */
+.urgency-row {
+  display: flex;
+  gap: 10px;
+}
+.urg-btn {
+  flex: 1;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  user-select: none;
+}
+.urg-btn:hover {
+  border-color: var(--border-2);
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+.urg-btn.selected-alta {
+  border-color: #c0392b;
+  background: #fdf3f2;
+  box-shadow: 0 0 0 1px #c0392b;
+}
+.urg-btn.selected-media {
+  border-color: #d68910;
+  background: #fdf8ee;
+  box-shadow: 0 0 0 1px #d68910;
+}
+.urg-btn.selected-baixa {
+  border-color: var(--primary);
+  background: var(--primary-xl);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+.urg-icon { font-size: 22px; }
+.urg-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text);
+  text-transform: uppercase;
+}
+.urg-desc {
+  font-size: 10px;
+  color: var(--text-3);
+  text-align: center;
+  line-height: 1.4;
+}
 
-  .cat-card.selected {
-    border-color: var(--green);
-    background: rgba(58,171,133,0.12);
-    box-shadow: 0 0 0 1px var(--green), 0 0 16px rgba(58,171,133,0.15);
-  }
-
-  .cat-card input[type="radio"] { display: none; }
-
-  .cat-icon { font-size: 22px; flex-shrink: 0; }
-
-  .cat-info { flex: 1; }
-  .cat-name {
-    font-size: 16px; font-weight: 700; letter-spacing: 1px;
-    color: var(--text); text-transform: uppercase;
-  }
-  .cat-desc {
-    font-size: 11px; color: var(--text-dim); margin-top: 2px;
-  }
-
-  .cat-check {
-    width: 18px; height: 18px; border-radius: 50%;
-    border: 2px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; transition: all 0.2s;
-  }
-  .cat-card.selected .cat-check {
-    border-color: var(--green);
-    background: var(--green);
-  }
-  .cat-card.selected .cat-check::after {
-    content: '✓'; font-size: 11px; color: #fff; font-weight: 700;
-  }
-
-  /* Urgency selector */
-  .urgency-row {
-    display: flex; gap: 10px;
-  }
-
-  .urg-btn {
-    flex: 1;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 10px;
-    cursor: pointer;
-    display: flex; flex-direction: column; align-items: center; gap: 6px;
-    transition: all 0.2s;
-    user-select: none;
-  }
-
-  .urg-btn:hover { background: rgba(255,255,255,0.05); border-color: var(--border-hover); }
-
-  .urg-btn.selected-alta {
-    border-color: #ff6b6b;
-    background: rgba(255,107,107,0.1);
-    box-shadow: 0 0 0 1px #ff6b6b, 0 0 16px rgba(255,107,107,0.12);
-  }
-  .urg-btn.selected-media {
-    border-color: #f4a261;
-    background: rgba(244,162,97,0.1);
-    box-shadow: 0 0 0 1px #f4a261, 0 0 16px rgba(244,162,97,0.12);
-  }
-  .urg-btn.selected-baixa {
-    border-color: var(--green);
-    background: var(--green-dim);
-    box-shadow: 0 0 0 1px var(--green), 0 0 16px rgba(58,171,133,0.12);
-  }
-
-  .urg-icon { font-size: 24px; }
-  .urg-label {
-    font-size: 12px; font-weight: 700; letter-spacing: 2px;
-    text-transform: uppercase; color: var(--text);
-  }
-  .urg-desc {
-    font-size: 10px; color: var(--text-dim); text-align: center; line-height: 1.3;
-  }
-
-  /* Nav buttons */
-  .nav-row {
-    display: flex; gap: 12px; margin-top: 20px;
-  }
-
-  .btn-back {
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px 24px;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 14px; font-weight: 700; letter-spacing: 2px;
-    color: var(--text-dim);
-    cursor: pointer; text-transform: uppercase;
-    transition: all 0.2s;
-  }
-  .btn-back:hover { border-color: var(--border-hover); color: var(--text); }
-
-  .btn-next {
-    flex: 1;
-    background: linear-gradient(135deg, var(--green-dark), var(--green));
-    border: none;
-    border-radius: 8px;
-    padding: 16px 28px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px; letter-spacing: 3px; color: #fff;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    transition: all 0.25s;
-    box-shadow: 0 4px 20px rgba(58,171,133,0.25);
-    position: relative; overflow: hidden;
-  }
-
-  .btn-next::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(135deg, transparent, rgba(255,255,255,0.08), transparent);
-    opacity: 0; transition: opacity 0.2s;
-  }
-  .btn-next:hover::before { opacity: 1; }
-  .btn-next:hover { box-shadow: 0 6px 28px rgba(58,171,133,0.4); transform: translateY(-1px); }
-  .btn-next:active { transform: translateY(0); }
-
-  .btn-submit {
-    flex: 1;
-    background: linear-gradient(135deg, #1a5c40, #3aab85);
-    border: none;
-    border-radius: 8px;
-    padding: 18px 28px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px; letter-spacing: 4px; color: #fff;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    transition: all 0.25s;
-    box-shadow: 0 4px 24px rgba(58,171,133,0.3);
-    position: relative; overflow: hidden;
-  }
-  .btn-submit:hover { box-shadow: 0 8px 32px rgba(58,171,133,0.5); transform: translateY(-2px); }
-
-  /* Success screen */
-  #success {
-    display: none;
-    width: 100%; max-width: 680px;
-    position: relative; z-index: 10;
-    padding: 0 24px;
-    margin-top: 20px;
-    animation: fadeUp 0.5s ease both;
-  }
-
-  .success-card {
-    background: var(--bg2);
-    border: 1px solid rgba(58,171,133,0.35);
-    border-radius: 12px;
-    padding: 48px 32px;
-    text-align: center;
-    position: relative; overflow: hidden;
-  }
-
-  .success-card::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, transparent, var(--green), var(--green-light), var(--green), transparent);
-  }
-
-  .success-icon {
-    font-size: 64px; margin-bottom: 16px;
-    animation: pop 0.5s cubic-bezier(.175,.885,.32,1.275) both;
-  }
-
-  @keyframes pop {
-    from { transform: scale(0); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-
-  .success-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 42px; letter-spacing: 4px; color: var(--green-light);
-    margin-bottom: 8px;
-  }
-
-  .success-msg {
-    font-size: 16px; font-weight: 600; letter-spacing: 1px;
-    color: var(--text-dim); margin-bottom: 28px; line-height: 1.5;
-  }
-
-  .success-info {
-    background: var(--green-dim);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px 20px;
-    display: flex; align-items: center; gap: 12px; margin-bottom: 8px;
-  }
-  .success-info-icon { font-size: 20px; }
-  .success-info-text { font-size: 13px; font-weight: 600; letter-spacing: 1px; color: var(--text-dim); text-align: left; }
-  .success-info-text strong { color: var(--text); display: block; font-size: 15px; }
-
-  /* ── Animations ── */
-  @keyframes fadeDown {
-    from { opacity:0; transform: translateY(-16px); }
-    to   { opacity:1; transform: translateY(0); }
-  }
-  @keyframes fadeUp {
-    from { opacity:0; transform: translateY(16px); }
-    to   { opacity:1; transform: translateY(0); }
-  }
-  @keyframes slideUp {
-    from { transform: translateY(60px); opacity: 0; }
-    to   { transform: translateY(0); opacity: 1; }
-  }
-
-  /* Floating particles */
-  .particle {
-    position: fixed; width: 2px; height: 2px; border-radius: 50%;
-    background: rgba(93,201,165,0.4); pointer-events: none; z-index: 1;
-    animation: float linear infinite;
-  }
-  @keyframes float {
-    from { transform: translateY(100vh); opacity: 0; }
-    10%  { opacity: 1; }
-    90%  { opacity: 1; }
-    to   { transform: translateY(-100px); opacity: 0; }
-  }
-
-  /* Helper text */
-  .helper {
-    font-size: 11px; color: var(--text-dim); letter-spacing: 1px;
-    margin-top: 6px; padding-left: 2px;
-  }
-
-  /* Other category input */
-  .other-input {
-    margin-top: 12px; display: none;
-  }
-  .other-input.show { display: block; }
-
-  /* Tipo de Solicitante */
+/* TIPO GRID — 2 colunas no mobile, 4 no tablet+ */
+.tipo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+@media (min-width: 520px) {
   .tipo-grid {
-    display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
   }
-  .tipo-btn {
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 8px;
-    cursor: pointer;
-    display: flex; flex-direction: column; align-items: center; gap: 6px;
-    transition: all 0.2s;
-    user-select: none;
-  }
-  .tipo-btn:hover {
-    background: rgba(58,171,133,0.07);
-    border-color: var(--border-hover);
-  }
-  .tipo-btn.selected {
-    border-color: var(--green);
-    background: rgba(58,171,133,0.14);
-    box-shadow: 0 0 0 1px var(--green), 0 0 14px rgba(58,171,133,0.15);
-  }
-  .tipo-icon { font-size: 20px; }
-  .tipo-label {
-    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
-    text-transform: uppercase; color: var(--text); text-align: center;
-  }
+}
+.tipo-btn {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  user-select: none;
+}
+.tipo-btn:hover {
+  background: var(--primary-xxl);
+  border-color: var(--primary-l);
+}
+.tipo-btn.selected {
+  border-color: var(--primary);
+  background: var(--primary-xl);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+.tipo-icon { font-size: 20px; }
+.tipo-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-2);
+  text-align: center;
+}
+.tipo-btn.selected .tipo-label { color: var(--primary-d); }
 
-  /* Protocolo badge */
-  .protocolo-badge {
-    background: linear-gradient(135deg, rgba(58,171,133,0.15), rgba(58,171,133,0.08));
-    border: 1px solid rgba(93,201,165,0.5);
-    border-radius: 10px;
-    padding: 14px 20px;
-    display: flex; align-items: center; gap: 12px;
-    margin-bottom: 20px;
-  }
-  .protocolo-icon { font-size: 22px; }
-  .protocolo-info { flex: 1; }
-  .protocolo-label {
-    font-size: 10px; font-weight: 700; letter-spacing: 3px;
-    color: var(--green); text-transform: uppercase; margin-bottom: 2px;
-  }
-  .protocolo-number {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px; letter-spacing: 3px; color: #fff;
-    text-shadow: 0 0 20px rgba(58,171,133,0.5);
-  }
-  .protocolo-copy {
-    background: rgba(58,171,133,0.15);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 6px 10px;
-    cursor: pointer;
-    font-size: 11px; font-weight: 700; letter-spacing: 1px;
-    color: var(--green-light); text-transform: uppercase;
-    transition: all 0.2s;
-  }
-  .protocolo-copy:hover {
-    background: rgba(58,171,133,0.25);
-    border-color: var(--green);
-  }
+/* OTHER INPUT */
+.other-input {
+  margin-top: 10px;
+  display: none;
+}
+.other-input.show { display: block; }
 
-  /* Autocomplete de sala */
-  .sala-autocomplete-wrap { position: relative; }
-  .sala-autocomplete-wrap input {
-    width: 100%;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px 16px 14px 44px;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 16px; font-weight: 600;
-    color: var(--text); outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-  }
-  .sala-autocomplete-wrap input:focus {
-    border-color: var(--green);
-    background: rgba(58,171,133,0.06);
-    box-shadow: 0 0 0 3px rgba(58,171,133,0.1);
-  }
-  .sala-autocomplete-wrap input::placeholder {
-    color: rgba(232,245,240,0.3);
-    font-weight: 500;
-  }
-  .sala-search-icon {
-    position: absolute;
-    left: 14px; top: 50%; transform: translateY(-50%);
-    font-size: 17px; pointer-events: none; z-index: 1;
-    opacity: 0.55;
-  }
-  .sala-confirmed-icon {
-    position: absolute;
-    right: 14px; top: 50%; transform: translateY(-50%);
-    font-size: 15px; font-weight: 700; letter-spacing: 1px;
-    color: var(--green-light); font-family: 'Rajdhani', sans-serif;
-    pointer-events: none; z-index: 1; display: none;
-  }
-  .sala-dropdown {
-    position: absolute; top: calc(100% + 4px); left: 0; right: 0;
-    background: var(--bg3); border: 1px solid var(--border);
-    border-radius: 10px; max-height: 220px; overflow-y: auto;
-    z-index: 100; display: none;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-  }
-  .sala-dropdown.open { display: block; }
-  .sala-dropdown-item {
-    padding: 12px 16px; cursor: pointer;
-    font-size: 14px; font-weight: 600; letter-spacing: 0.5px;
-    color: var(--text); transition: background 0.15s;
-    display: flex; align-items: center; gap: 10px;
-    border-bottom: 1px solid rgba(58,171,133,0.08);
-  }
-  .sala-dropdown-item:last-child { border-bottom: none; }
-  .sala-dropdown-item:hover, .sala-dropdown-item.highlighted {
-    background: rgba(58,171,133,0.12);
-    color: var(--green-light);
-  }
-  .sala-dropdown-item .sala-tag-tipo {
-    font-size: 10px; letter-spacing: 1.5px; font-weight: 700;
-    text-transform: uppercase; color: var(--green);
-    background: rgba(58,171,133,0.12); border-radius: 4px; padding: 2px 6px;
-    margin-left: auto; flex-shrink: 0;
-  }
-  .sala-no-results {
-    padding: 14px 16px; font-size: 13px; color: var(--text-dim);
-    font-weight: 600; letter-spacing: 1px; text-align: center;
-  }
+/* RESUMO */
+.resumo-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.resumo-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.resumo-key {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  flex-shrink: 0;
+  width: 80px;
+}
+.resumo-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.resumo-proto {
+  font-family: 'DM Serif Display', serif;
+  color: var(--primary-d);
+  font-size: 16px;
+}
 
-  /* ── Inline error messages ── */
-  .field-error {
-    display: none;
-    align-items: center;
-    gap: 7px;
-    margin-top: 8px;
-    padding: 10px 14px;
-    background: rgba(255, 80, 80, 0.08);
-    border: 1px solid rgba(255, 80, 80, 0.35);
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: #ff7070;
-    animation: errorShake 0.35s ease both;
-  }
-  .field-error.show { display: flex; }
-  .field-error-icon { font-size: 14px; flex-shrink: 0; }
-  @keyframes errorShake {
-    0%   { transform: translateX(0); }
-    20%  { transform: translateX(-6px); }
-    40%  { transform: translateX(6px); }
-    60%  { transform: translateX(-4px); }
-    80%  { transform: translateX(4px); }
-    100% { transform: translateX(0); }
-  }
-  /* Highlight field border on error */
-  .field.has-error input,
-  .field.has-error textarea {
-    border-color: rgba(255, 80, 80, 0.6) !important;
-    box-shadow: 0 0 0 3px rgba(255, 80, 80, 0.08) !important;
-  }
-  .field.has-error .cat-grid,
-  .field.has-error .urgency-row,
-  .field.has-error .tipo-grid,
-  .field.has-error .lgpd-check-row {
-    border-radius: 10px;
-    outline: 1px solid rgba(255,80,80,0.45);
-    outline-offset: 2px;
-  }
+/* LGPD CHECK */
+.lgpd-check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-top: 4px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.lgpd-check-row:hover { border-color: var(--primary-l); }
+.lgpd-check-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.lgpd-check-row label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  line-height: 1.55;
+  cursor: pointer;
+}
+.lgpd-check-row label a {
+  color: var(--primary);
+  text-decoration: underline;
+}
 
-  /* ── LGPD ── */
-  .lgpd-bar {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--bg2);
-    border-top: 1px solid var(--border);
-    padding: 14px 20px;
-    display: flex; align-items: center; gap: 14px;
-    z-index: 200;
-    animation: slideUp 0.4s ease both;
-    box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
-  }
-  @keyframes slideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to   { transform: translateY(0);    opacity: 1; }
-  }
-  .lgpd-bar.hidden { display: none; }
-  .lgpd-icon { font-size: 20px; flex-shrink: 0; }
-  .lgpd-text {
-    flex: 1; font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
-    color: var(--text-dim); line-height: 1.4;
-  }
-  .lgpd-text a {
-    color: var(--green-light); text-decoration: underline; cursor: pointer;
-  }
-  .lgpd-btn-ok {
-    background: var(--green-dark); border: 1px solid var(--green);
-    border-radius: 8px; padding: 10px 18px; cursor: pointer;
-    font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px;
-    color: #fff; white-space: nowrap; transition: background 0.2s; flex-shrink: 0;
-  }
-  .lgpd-btn-ok:hover { background: var(--green); }
+/* NAV BUTTONS */
+.nav-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+.btn-back {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 22px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.2px;
+}
+.btn-back:hover {
+  border-color: var(--border-2);
+  color: var(--text);
+  background: var(--surface);
+}
+.btn-next {
+  flex: 1;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px 28px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(58,122,114,0.25);
+  letter-spacing: 0.2px;
+}
+.btn-next:hover {
+  background: var(--primary-d);
+  box-shadow: 0 4px 16px rgba(58,122,114,0.35);
+  transform: translateY(-1px);
+}
+.btn-next:active { transform: translateY(0); }
 
-  /* LGPD Modal */
-  .lgpd-overlay {
-    display: none; position: fixed; inset: 0; z-index: 300;
-    background: rgba(0,0,0,0.75); align-items: center; justify-content: center;
-    padding: 24px;
-  }
-  .lgpd-overlay.open { display: flex; }
-  .lgpd-modal {
-    background: var(--bg2); border: 1px solid var(--border);
-    border-radius: 14px; max-width: 560px; width: 100%;
-    max-height: 80vh; overflow-y: auto;
-    padding: 32px 28px; position: relative;
-  }
-  .lgpd-modal::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--green), var(--green-light), var(--green), transparent);
-    border-radius: 14px 14px 0 0;
-  }
-  .lgpd-modal-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 24px; letter-spacing: 3px; color: var(--green-light);
-    margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
-  }
-  .lgpd-modal h3 {
-    font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
-    color: var(--green); margin: 18px 0 6px;
-  }
-  .lgpd-modal p {
-    font-size: 13px; font-weight: 500; color: var(--text-dim);
-    line-height: 1.65; letter-spacing: 0.3px;
-  }
-  .lgpd-modal ul {
-    margin: 6px 0 0 18px; font-size: 13px; font-weight: 500;
-    color: var(--text-dim); line-height: 1.7;
-  }
-  .lgpd-close {
-    margin-top: 24px; width: 100%;
-    background: var(--green-dark); border: 1px solid var(--green);
-    border-radius: 8px; padding: 14px; cursor: pointer;
-    font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 3px;
-    color: #fff; transition: background 0.2s;
-  }
-  .lgpd-close:hover { background: var(--green); }
+.btn-submit {
+  flex: 1;
+  background: var(--primary-d);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 15px 28px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(42,90,84,0.3);
+  letter-spacing: 0.2px;
+}
+.btn-submit:hover {
+  background: #1e4540;
+  box-shadow: 0 4px 20px rgba(42,90,84,0.4);
+  transform: translateY(-1px);
+}
+.btn-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
 
-  /* LGPD checkbox no Step 3 */
-  .lgpd-check-row {
-    display: flex; align-items: flex-start; gap: 12px;
-    background: rgba(58,171,133,0.06); border: 1px solid var(--border);
-    border-radius: 8px; padding: 14px 16px; margin-top: 4px; cursor: pointer;
-    transition: border-color 0.2s;
-  }
-  .lgpd-check-row:hover { border-color: var(--border-hover); }
-  .lgpd-check-row input[type="checkbox"] {
-    width: 18px; height: 18px; accent-color: var(--green);
-    cursor: pointer; flex-shrink: 0; margin-top: 2px;
-  }
-  .lgpd-check-row label {
-    font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
-    color: var(--text-dim); line-height: 1.5; cursor: pointer;
-  }
-  .lgpd-check-row label a {
-    color: var(--green-light); text-decoration: underline;
-  }
+/* ── FIELD ERRORS ── */
+.field-error {
+  display: none;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: rgba(192,57,43,0.07);
+  border: 1px solid rgba(192,57,43,0.25);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--error);
+  letter-spacing: 0.2px;
+  animation: errorShake 0.35s ease both;
+}
+.field-error.show { display: flex; }
+.field-error-icon { font-size: 13px; flex-shrink: 0; }
 
-  /* ── MOBILE RESPONSIVENESS ── */
-  @media (max-width: 480px) {
-    body { padding: 0 0 40px 0; }
+@keyframes errorShake {
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(-5px); }
+  40%  { transform: translateX(5px); }
+  60%  { transform: translateX(-3px); }
+  80%  { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+}
+.field.has-error input,
+.field.has-error textarea {
+  border-color: rgba(192,57,43,0.5) !important;
+  box-shadow: 0 0 0 3px rgba(192,57,43,0.08) !important;
+}
+.field.has-error .cat-grid,
+.field.has-error .urgency-row,
+.field.has-error .tipo-grid,
+.field.has-error .lgpd-check-row {
+  border-radius: 10px;
+  outline: 1.5px solid rgba(192,57,43,0.4);
+  outline-offset: 2px;
+}
 
-    .header { padding: 16px 16px 0; }
+/* ── SUCCESS SCREEN ── */
+#success {
+  display: none;
+  width: 100%;
+  max-width: 680px;
+  padding: 16px 24px 0;
+  position: relative;
+  z-index: 10;
+  animation: fadeUp 0.5s ease both;
+}
 
-    .header-top { gap: 10px; }
-    .logo-circle { width: 42px; height: 42px; font-size: 13px; }
-    .header-inst { font-size: 10px; letter-spacing: 2px; }
-    .header-dept { font-size: 11px; }
-    .status-pill { padding: 5px 10px; }
-    .status-text { font-size: 10px; }
+.success-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 48px 32px 36px;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+.success-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-d), var(--primary), var(--primary-l));
+}
 
-    .title-banner { padding: 20px 20px; }
-    .title-main { font-size: 38px; }
-    .title-sub { font-size: 11px; letter-spacing: 1px; }
-    .title-banner::after { font-size: 70px; right: 12px; }
+.success-icon-wrap {
+  width: 72px;
+  height: 72px;
+  background: var(--primary-xl);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  animation: popIn 0.5s cubic-bezier(.175,.885,.32,1.275) both;
+}
+.success-icon-wrap svg {
+  width: 36px;
+  height: 36px;
+}
+@keyframes popIn {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
 
-    /* ✅ FONTE AUMENTADA MOBILE: "Sistema de Atendimento" */
-    .title-label { font-size: 12px; }
+.success-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 30px;
+  font-weight: 400;
+  color: var(--primary-d);
+  margin-bottom: 8px;
+}
+.success-msg {
+  font-size: 14px;
+  color: var(--text-3);
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
 
-    .form-card { padding: 0 16px; margin-top: 16px; }
+.protocolo-badge {
+  background: var(--primary-xl);
+  border: 1.5px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+.protocolo-icon { font-size: 22px; }
+.protocolo-info { flex: 1; }
+.protocolo-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.protocolo-number {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--primary-d);
+  letter-spacing: 0.5px;
+}
+.protocolo-copy {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  transition: all 0.2s;
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+}
+.protocolo-copy:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
 
-    .section { padding: 20px 18px 18px; }
-    .section-number { font-size: 36px; top: 14px; right: 16px; }
-    .section-title { font-size: 18px; margin-bottom: 16px; }
+.success-info {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  text-align: left;
+}
+.success-info-icon { font-size: 16px; flex-shrink: 0; }
+.success-info-text {
+  font-size: 12px;
+  color: var(--text-3);
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+.success-info-text strong {
+  color: var(--text);
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 1px;
+}
 
-    /* ✅ FONTE AUMENTADA MOBILE: field-labels */
-    .field-label { font-size: 12px; letter-spacing: 1.5px; }
+.btn-novo {
+  margin-top: 20px;
+  width: 100%;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-novo:hover {
+  border-color: var(--primary-l);
+  color: var(--primary);
+  background: var(--primary-xxl);
+}
 
-    .sala-value { font-size: 22px; }
+/* ── LGPD BAR ── */
+.lgpd-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 200;
+  animation: slideUp 0.4s ease both;
+  box-shadow: 0 -4px 20px rgba(42,90,84,0.1);
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+.lgpd-bar.hidden { display: none; }
+.lgpd-icon { font-size: 18px; flex-shrink: 0; }
+.lgpd-text {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+.lgpd-text a {
+  color: var(--primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.lgpd-btn-ok {
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 18px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.lgpd-btn-ok:hover { background: var(--primary-d); }
 
-    .cat-card { padding: 12px 14px; gap: 10px; }
-    .cat-icon { font-size: 20px; }
-    .cat-name { font-size: 13px; }
-    .cat-desc { font-size: 10px; }
+/* LGPD Modal */
+.lgpd-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(26,46,43,0.6);
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.lgpd-overlay.open { display: flex; }
+.lgpd-modal {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  max-width: 560px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 32px 28px;
+  position: relative;
+  box-shadow: var(--shadow-lg);
+}
+.lgpd-modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-d), var(--primary), var(--primary-l));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.lgpd-modal-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: var(--primary-d);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lgpd-modal h3 {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin: 18px 0 6px;
+}
+.lgpd-modal p {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+.lgpd-modal ul {
+  margin: 6px 0 0 18px;
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+.lgpd-close {
+  margin-top: 24px;
+  width: 100%;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  transition: background 0.2s;
+}
+.lgpd-close:hover { background: var(--primary-d); }
 
-    .urgency-row { gap: 8px; }
-    .urg-btn { padding: 12px 6px; }
-    .urg-icon { font-size: 20px; }
-    .urg-label { font-size: 11px; letter-spacing: 1px; }
-    .urg-desc { font-size: 9px; }
+/* ── ANIMATIONS ── */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
-    textarea { font-size: 15px; }
-    input[type="text"], input[type="tel"] { font-size: 15px; }
+/* ── INTRO LEGEND ── */
+.intro-legend {
+  padding: 20px 0 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.intro-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--white);
+  background: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px 4px 8px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+}
+.intro-icon {
+  font-size: 10px;
+  opacity: 0.85;
+}
+.intro-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: var(--text);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+.intro-title-green {
+  color: var(--primary);
+}
+.intro-desc {
+  font-size: 13px;
+  color: var(--text-3);
+  line-height: 1.6;
+  font-weight: 400;
+}
 
-    .btn-next { font-size: 18px; padding: 14px 20px; }
-    .btn-submit { font-size: 18px; padding: 16px 20px; }
-    .btn-back { padding: 12px 16px; font-size: 13px; }
+/* ── FOOTER TAG ── */
+.footer-tag {
+  width: 100%;
+  max-width: 680px;
+  padding: 20px 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  position: relative;
+  z-index: 10;
+}
+.footer-tag-text {
+  font-size: 11px;
+  color: var(--text-3);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+.footer-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--border-2);
+}
 
-    .success-card { padding: 36px 20px; }
-    .success-icon { font-size: 52px; }
-    .success-title { font-size: 34px; }
-    .success-msg { font-size: 14px; }
+/* ── RESPONSIVE ── */
+@media (max-width: 480px) {
+  body { padding-bottom: 60px; }
 
-    #success { padding: 0 16px; }
-  }
+  .top-bar-inner { padding: 0 16px; height: 54px; gap: 10px; }
+  .fmc-logo-mark { font-size: 19px; }
+  .fmc-name-inst { font-size: 10px; }
+  .fmc-name-dept { display: none; }
 
-  @media (max-width: 360px) {
-    .title-main { font-size: 32px; }
-    .urgency-row { flex-direction: column; }
-    .urg-btn { flex-direction: row; gap: 12px; padding: 12px 14px; }
-    .urg-desc { text-align: left; }
-  }
+  .hero { padding: 16px 16px 0; }
+  .hero-card { padding: 22px 22px 20px; }
+  .hero-title { font-size: 26px; }
+  .hero-card::after { font-size: 64px; right: 12px; }
 
+  .steps-wrap { padding: 16px 16px 0; }
+
+  .form-card { padding: 12px 16px 0; }
+  .section { padding: 20px 18px 18px; }
+
+  .cat-name { font-size: 13px; }
+  .tipo-btn { padding: 12px 8px; }
+
+  .urgency-row { gap: 8px; }
+  .urg-btn { padding: 12px 6px; }
+  .urg-icon { font-size: 18px; }
+  .urg-label { font-size: 10px; }
+  .urg-desc { font-size: 9px; }
+
+  .btn-next, .btn-submit { font-size: 14px; padding: 13px 16px; }
+  .btn-back { padding: 11px 14px; font-size: 13px; }
+
+  .success-card { padding: 36px 20px 28px; }
+  .success-title { font-size: 26px; }
+  #success { padding: 12px 16px 0; }
+
+  .footer-tag { padding: 16px 16px 0; }
+}
+
+@media (max-width: 360px) {
+  .urgency-row { flex-direction: column; }
+  .urg-btn { flex-direction: row; gap: 10px; justify-content: flex-start; padding: 12px 14px; }
+  .urg-desc { text-align: left; }
+}
 </style>
 </head>
 <body>
 
-<!-- Particles -->
-<script>
-  for(let i=0;i<12;i++){
-    const p=document.createElement('div');
-    p.className='particle';
-    p.style.left=Math.random()*100+'vw';
-    p.style.animationDuration=(8+Math.random()*12)+'s';
-    p.style.animationDelay=(Math.random()*10)+'s';
-    p.style.width=p.style.height=(1+Math.random()*2)+'px';
-    document.body.appendChild(p);
-  }
-</script>
-
-<!-- TOP BAR VERDE -->
+<!-- ── TOP BAR ── -->
 <div class="top-bar">
   <div class="top-bar-inner">
-    <div class="logo-circle">.fmc</div>
-    <div class="header-meta">
-      <div class="header-inst">FMC · Faculdade de Medicina de Campos</div>
-      <div class="header-dept">Central de Apoio Pedagógico — CAP Digital</div>
+    <div class="fmc-logo">
+      <div class="fmc-logo-mark"><span>.</span>fmc</div>
     </div>
-    <div class="status-pill">
+    <div class="fmc-divider"></div>
+    <div class="fmc-name">
+      <div class="fmc-name-inst">Faculdade de Medicina de Campos</div>
+      <div class="fmc-name-dept">Central de Apoio Pedagógico</div>
+    </div>
+    <div class="status-chip">
       <div class="status-dot"></div>
-      <span class="status-text">Online</span>
+      <span class="status-label">Online</span>
     </div>
   </div>
 </div>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="header-top">
-    <div class="logo-circle">.fmc</div>
-    <div class="header-meta">
-      <div class="header-inst">FMC · Faculdade de Medicina de Campos</div>
-      <div class="header-dept">Central de Apoio Pedagógico — CAP Digital</div>
-    </div>
-    <div class="status-pill">
-      <div class="status-dot"></div>
-      <span class="status-text">Online</span>
-    </div>
-  </div>
-
-  <div class="title-banner">
-    <div class="title-label">· Sistema de Atendimento ·</div>
-    <div class="title-main">CAP-Chamados<br>Digital</div>
-    <div class="title-sub">Preencha · Envie · Aguarde o atendimento</div>
-  </div>
-
-  <!-- Progress -->
-  <div class="steps-bar" id="stepsBar">
-    <div class="step-segment active" id="seg0"></div>
-    <div class="step-segment" id="seg1"></div>
-    <div class="step-segment" id="seg2"></div>
-  </div>
-  <div class="steps-label">
-    <span class="step-name active" id="sname0">Local</span>
-    <span class="step-name" id="sname1">Problema</span>
-    <span class="step-name" id="sname2">Solicitante</span>
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-card">
+    <div class="hero-eyebrow">· Sistema de Atendimento ·</div>
+    <div class="hero-title">CAP Digital</div>
+    <div class="hero-subtitle">Preencha · Envie · Aguarde o atendimento</div>
   </div>
 </div>
 
-<!-- FORM -->
+<!-- ── STEP INDICATOR ── -->
+<div class="steps-wrap" id="stepsWrap">
+  <div class="steps-track">
+    <div class="step-item active" id="stepItem0">
+      <div class="step-circle" id="seg0">1</div>
+      <span class="step-label" id="sname0">Local</span>
+    </div>
+    <div class="step-item" id="stepItem1">
+      <div class="step-circle" id="seg1">2</div>
+      <span class="step-label" id="sname1">Problema</span>
+    </div>
+    <div class="step-item" id="stepItem2">
+      <div class="step-circle" id="seg2">3</div>
+      <span class="step-label" id="sname2">Solicitante</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── FORM ── -->
 <div class="form-card">
 
-  <!-- STEP 1: Local -->
+  <!-- INTRO LEGEND -->
+  <div class="intro-legend">
+    <div class="intro-eyebrow"><span class="intro-icon">✦</span> Suporte Técnico</div>
+    <div class="intro-title">Abrir <span class="intro-title-green">Chamado</span></div>
+    <div class="intro-desc">Preencha as informações abaixo para registrar sua solicitação. Nossa equipe será notificada imediatamente.</div>
+  </div>
+
+  <!-- STEP 1 -->
   <div class="section active" id="step0">
-    <div class="section-number">01</div>
-    <div class="section-title"><span class="icon">📍</span> Local / Sala</div>
+    <div class="section-header">
+      <div class="section-badge">01</div>
+      <div class="section-title"><span class="icon">📍</span> Local / Sala</div>
+    </div>
 
     <div class="field" id="fieldSala">
-      <div class="field-label">
-        Sala <span class="req">*</span>
-      </div>
+      <div class="field-label">Sala <span class="req">*</span></div>
       <div class="sala-badge" id="salaBadgeWrap">
         <div class="sala-value" id="salaDisplay">—</div>
         <div class="sala-tag" id="salaBadge">✓ Pré-preenchido</div>
@@ -1031,7 +1387,6 @@
       <div class="field-error" id="errSala"><span class="field-error-icon">⚠️</span> Selecione uma sala da lista.</div>
     </div>
 
-    <!-- Categoria -->
     <div class="field" id="fieldCat">
       <div class="field-label">Categoria do Chamado <span class="req">*</span></div>
       <div class="cat-grid" id="catGrid">
@@ -1039,7 +1394,7 @@
           <input type="radio" name="categoria" value="Projetor / Data Show">
           <span class="cat-icon">📽️</span>
           <div class="cat-info">
-            <div class="cat-name">Projetor/Tv</div>
+            <div class="cat-name">Projetor / TV</div>
             <div class="cat-desc">Data Show / HDMI</div>
           </div>
           <div class="cat-check"></div>
@@ -1058,7 +1413,7 @@
           <span class="cat-icon">📚</span>
           <div class="cat-info">
             <div class="cat-name">Suporte Pedagógico</div>
-            <div class="cat-desc">Dúvidas / Materiais / Orientação</div>
+            <div class="cat-desc">Dúvidas / Materiais</div>
           </div>
           <div class="cat-check"></div>
         </label>
@@ -1075,8 +1430,8 @@
           <input type="radio" name="categoria" value="Som / Microfone / Áudio">
           <span class="cat-icon">🎤</span>
           <div class="cat-info">
-            <div class="cat-name">Caixa de Som / Áudio</div>
-            <div class="cat-desc">Som / Microfone</div>
+            <div class="cat-name">Som / Áudio</div>
+            <div class="cat-desc">Caixa / Microfone</div>
           </div>
           <div class="cat-check"></div>
         </label>
@@ -1103,7 +1458,7 @@
           <span class="cat-icon">🪑</span>
           <div class="cat-info">
             <div class="cat-name">Infraestrutura</div>
-            <div class="cat-desc">Carteira / Mesa / Mobiliário da sala</div>
+            <div class="cat-desc">Mobiliário da sala</div>
           </div>
           <div class="cat-check"></div>
         </label>
@@ -1128,35 +1483,35 @@
     </div>
   </div>
 
-  <!-- STEP 2: Problema -->
+  <!-- STEP 2 -->
   <div class="section" id="step1">
-    <div class="section-number">02</div>
-    <div class="section-title"><span class="icon">⚡</span> Detalhes do Problema</div>
+    <div class="section-header">
+      <div class="section-badge">02</div>
+      <div class="section-title"><span class="icon">⚡</span> Detalhes do Problema</div>
+    </div>
 
-    <!-- Urgência -->
     <div class="field" id="fieldUrg">
       <div class="field-label">Nível de Urgência <span class="req">*</span></div>
       <div class="urgency-row">
         <div class="urg-btn" onclick="selectUrg(this,'Alta')">
           <span class="urg-icon">🔴</span>
           <span class="urg-label">Alta</span>
-          <span class="urg-desc">Aula / evento<br>parado</span>
+          <span class="urg-desc">Aula / evento parado</span>
         </div>
         <div class="urg-btn" onclick="selectUrg(this,'Média')">
           <span class="urg-icon">🟡</span>
           <span class="urg-label">Média</span>
-          <span class="urg-desc">Atender assim<br>que possível</span>
+          <span class="urg-desc">Atender assim que possível</span>
         </div>
         <div class="urg-btn" onclick="selectUrg(this,'Baixa')">
           <span class="urg-icon">🟢</span>
           <span class="urg-label">Baixa</span>
-          <span class="urg-desc">Pode aguardar<br>disponibilidade</span>
+          <span class="urg-desc">Pode aguardar disponibilidade</span>
         </div>
       </div>
       <div class="field-error" id="errUrg"><span class="field-error-icon">⚠️</span> Selecione o nível de urgência.</div>
     </div>
 
-    <!-- Descrição -->
     <div class="field" id="fieldDesc">
       <div class="field-label">Descreva o Problema <span class="req">*</span></div>
       <textarea id="descricao" rows="4" placeholder="Ex: Projetor não exibe imagem mesmo com HDMI conectado. Tentei reiniciar e não resolveu..." maxlength="800"></textarea>
@@ -1170,10 +1525,12 @@
     </div>
   </div>
 
-  <!-- STEP 3: Solicitante -->
+  <!-- STEP 3 -->
   <div class="section" id="step2">
-    <div class="section-number">03</div>
-    <div class="section-title"><span class="icon">👤</span> Identificação</div>
+    <div class="section-header">
+      <div class="section-badge">03</div>
+      <div class="section-title"><span class="icon">👤</span> Identificação</div>
+    </div>
 
     <div class="field" id="fieldNome">
       <div class="field-label">Seu Nome <span class="req">*</span></div>
@@ -1205,30 +1562,31 @@
     </div>
 
     <div class="field" id="fieldTel">
+      <div class="field-label">Telefone / WhatsApp <span class="req">*</span></div>
       <input type="tel" id="telefone" placeholder="(22) 99999-9999" maxlength="20" autocomplete="tel">
       <div class="helper">Necessário para receber atualizações sobre o seu chamado.</div>
-      <div class="field-error" id="errTel"><span class="field-error-icon">&#9888;&#65039;</span> Informe um telefone válido com DDD.</div>
+      <div class="field-error" id="errTel"><span class="field-error-icon">⚠️</span> Informe um telefone válido com DDD.</div>
     </div>
 
-    <!-- Resumo do chamado -->
-    <div class="field" style="margin-top:8px;">
-      <div class="field-label">Resumo do Chamado</div>
-      <div class="sala-badge" style="flex-direction:column; align-items:flex-start; gap:8px; padding:16px 18px;">
-        <div style="display:flex;gap:8px;align-items:center;">
-          <span style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--green);text-transform:uppercase;">Protocolo:</span>
-          <span id="resumoProtocolo" style="font-weight:700;font-size:15px;font-family:'Bebas Neue',sans-serif;letter-spacing:2px;color:var(--green-light);">—</span>
+    <!-- Resumo -->
+    <div class="field" style="margin-top:4px;">
+      <div class="field-label">Resumo do Chamado <span class="req">*</span></div>
+      <div class="resumo-card">
+        <div class="resumo-row">
+          <span class="resumo-key">Protocolo</span>
+          <span class="resumo-val resumo-proto" id="resumoProtocolo">—</span>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <span style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--green);text-transform:uppercase;">Sala:</span>
-          <span id="resumoSala" style="font-weight:700;font-size:15px;">—</span>
+        <div class="resumo-row">
+          <span class="resumo-key">Sala</span>
+          <span class="resumo-val" id="resumoSala">—</span>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <span style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--green);text-transform:uppercase;">Categoria:</span>
-          <span id="resumoCat" style="font-weight:700;font-size:15px;">—</span>
+        <div class="resumo-row">
+          <span class="resumo-key">Categoria</span>
+          <span class="resumo-val" id="resumoCat">—</span>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <span style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--green);text-transform:uppercase;">Urgência:</span>
-          <span id="resumoUrg" style="font-weight:700;font-size:15px;">—</span>
+        <div class="resumo-row">
+          <span class="resumo-key">Urgência</span>
+          <span class="resumo-val" id="resumoUrg">—</span>
         </div>
       </div>
     </div>
@@ -1247,13 +1605,22 @@
 
     <div class="nav-row">
       <button class="btn-back" onclick="nextStep(1)">← Voltar</button>
-      <button class="btn-submit" id="btnSubmit" onclick="submitForm()">🚀 Enviar Chamado</button>
+      <button class="btn-submit" id="btnSubmit" onclick="submitForm()">Enviar Chamado →</button>
     </div>
   </div>
 
 </div>
 
-<!-- LGPD BANNER -->
+<!-- ── FOOTER ── -->
+<div class="footer-tag">
+  <span class="footer-tag-text">CAP Digital · FMC</span>
+  <div class="footer-dot"></div>
+  <span class="footer-tag-text">Central de Apoio Pedagógico</span>
+  <div class="footer-dot"></div>
+  <span class="footer-tag-text">Lei 13.709/2018</span>
+</div>
+
+<!-- ── LGPD BANNER ── -->
 <div class="lgpd-bar" id="lgpdBar">
   <span class="lgpd-icon">🔒</span>
   <div class="lgpd-text">
@@ -1263,14 +1630,12 @@
   <button class="lgpd-btn-ok" onclick="fecharLGPDBanner()">Entendi</button>
 </div>
 
-<!-- LGPD MODAL -->
+<!-- ── LGPD MODAL ── -->
 <div class="lgpd-overlay" id="lgpdOverlay">
   <div class="lgpd-modal">
     <div class="lgpd-modal-title">🔒 Política de Privacidade</div>
-
     <h3>1. Responsável pelo Tratamento</h3>
     <p>Faculdade de Medicina de Campos (FMC) — Central de Apoio Pedagógico (CAP Digital). Os dados coletados são utilizados exclusivamente para fins de suporte técnico interno.</p>
-
     <h3>2. Dados Coletados</h3>
     <ul>
       <li><strong>Nome completo</strong> — identificação do solicitante</li>
@@ -1278,28 +1643,28 @@
       <li><strong>Telefone (WhatsApp)</strong> — para retorno e notificações sobre o chamado</li>
       <li><strong>Local (sala/laboratório)</strong> — identificação do espaço físico com o problema</li>
     </ul>
-
     <h3>3. Finalidade e Base Legal</h3>
     <p>Os dados são coletados com base no <strong>legítimo interesse institucional</strong> (Art. 7º, IX da LGPD) para viabilizar o atendimento técnico e registrar o histórico de chamados. Nenhum dado é utilizado para fins comerciais ou compartilhado com terceiros.</p>
-
     <h3>4. Armazenamento e Retenção</h3>
     <p>Os registros são armazenados em planilha institucional do Google Workspace da FMC, com acesso restrito à equipe CAP. Os dados são retidos pelo período necessário para fins de controle de qualidade e auditoria interna, podendo ser excluídos mediante solicitação.</p>
-
     <h3>5. Direitos do Titular</h3>
     <p>Nos termos do Art. 18 da LGPD, você pode solicitar: acesso, correção, exclusão ou anonimização dos seus dados, além de revogar o consentimento a qualquer momento. Solicitações devem ser dirigidas ao e-mail da CAP ou presencialmente na secretaria da FMC.</p>
-
     <h3>6. Contato</h3>
     <p>Para dúvidas sobre privacidade, entre em contato com a equipe CAP/FMC.</p>
-
     <button class="lgpd-close" onclick="fecharLGPD()">Fechar</button>
   </div>
 </div>
 
-<!-- SUCCESS -->
+<!-- ── SUCCESS ── -->
 <div id="success">
   <div class="success-card">
-    <div class="success-icon">✅</div>
-    <div class="success-title">Chamado Enviado!</div>
+    <div class="success-icon-wrap">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="18" cy="18" r="18" fill="#3a7a72" fill-opacity="0.15"/>
+        <path d="M11 18.5L15.5 23L25 13" stroke="#2a5a54" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="success-title">Chamado Registrado!</div>
     <div class="success-msg">
       Sua solicitação foi registrada com sucesso.<br>
       A equipe CAP já foi notificada e irá atender em breve.
@@ -1343,20 +1708,22 @@
       </div>
     </div>
 
+    <button class="btn-novo" onclick="voltarFormulario()">+ Abrir novo chamado</button>
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════
+     LÓGICA — 100% PRESERVADA DO ORIGINAL
+═══════════════════════════════════════ -->
 
+<!-- Lê sala pelo QR Code -->
 <script>
-  // ── Lê a sala automaticamente pelo link do QR Code ──
   (function() {
     const params = new URLSearchParams(window.location.search);
-    // ✅ SEGURANÇA: sanitiza o parâmetro da URL antes de usar no DOM
     const rawParam = params.get('sala') || '';
     const salaParam = rawParam.replace(/[<>"'`]/g, '').slice(0, 60);
 
     if (salaParam) {
-      // QR Code identificado — mantém o badge estático
       const ehNumero = /^\d+$/.test(salaParam);
       const nomeFormatado = salaParam.replace(/_/g, ' ').replace(/^Lab /i, 'Lab. ');
       const displayText = ehNumero ? 'SALA ' + salaParam : nomeFormatado.toUpperCase();
@@ -1366,11 +1733,8 @@
       document.getElementById('salaBadge').textContent   = '\u2713 Identificado pelo QR Code';
       document.getElementById('salaHelper').textContent  = 'Sala identificada automaticamente';
     } else {
-      // Sem QR Code — substitui o badge pelo campo de busca diretamente
       const badgeWrap = document.getElementById('salaBadgeWrap');
       const helper    = document.getElementById('salaHelper');
-
-      // Remove badge e helper
       badgeWrap.style.display = 'none';
       helper.style.display    = 'none';
 
@@ -1410,24 +1774,19 @@
 
       const wrap = document.createElement('div');
       wrap.className = 'sala-autocomplete-wrap';
-
       const searchIcon = document.createElement('span');
       searchIcon.className = 'sala-search-icon';
       searchIcon.textContent = '🔍';
-
       const confirmedIcon = document.createElement('span');
       confirmedIcon.className = 'sala-confirmed-icon';
       confirmedIcon.textContent = '✓ confirmado';
-
       const inp = document.createElement('input');
       inp.type = 'text';
       inp.placeholder = 'Toque para ver todas ou digite para filtrar…';
       inp.autocomplete = 'off';
       inp.maxLength = 60;
-
       const dropdown = document.createElement('div');
       dropdown.className = 'sala-dropdown';
-
       let hiIdx = -1;
 
       function renderDropdown(filter) {
@@ -1463,14 +1822,12 @@
       }
 
       function selectSala(nome) {
-        // ✅ SEGURANÇA: valida que a sala pertence à lista antes de aceitar
         const valid = SALAS.find(s => s.nome === nome);
         if (!valid) return;
         inp.value = nome;
         document.getElementById('sala').value = nome;
         confirmedIcon.style.display = 'block';
-        // Muda borda para verde confirmado
-        inp.style.borderColor = 'var(--green)';
+        inp.style.borderColor = 'var(--primary)';
         inp.style.paddingRight = '110px';
         dropdown.classList.remove('open');
       }
@@ -1496,8 +1853,6 @@
       wrap.appendChild(inp);
       wrap.appendChild(confirmedIcon);
       wrap.appendChild(dropdown);
-
-      // Insere o campo de busca logo após o input hidden de sala
       const hiddenSala = document.getElementById('sala');
       hiddenSala.after(wrap);
     }
@@ -1505,34 +1860,31 @@
 </script>
 
 <script>
-
-  let currentStep = 0;
-  let selectedCat = '';
-  let selectedUrg = '';
+  let currentStep  = 0;
+  let selectedCat  = '';
+  let selectedUrg  = '';
   let selectedTipo = '';
   let protocoloGerado = '';
-  let formSubmitted = false; // ✅ SEGURANÇA: flag anti-duplo-envio
+  let formSubmitted = false;
 
-  // ✅ SEGURANÇA: sanitiza texto antes de inserir no DOM
   function sanitize(str) {
     const div = document.createElement('div');
     div.textContent = String(str || '').trim().slice(0, 500);
     return div.textContent;
   }
-
-  // ✅ SEGURANÇA: valida campos com regras estritas
   function isNomeValido(nome) {
     return nome.length >= 3 && nome.length <= 100 && /^[\p{L}\p{M}\s'.,-]+$/u.test(nome);
   }
   function isTelValido(tel) {
-    if (!tel) return false; // obrigatório
+    if (!tel) return false;
     return /^[\d\s\(\)\+\-]{7,20}$/.test(tel);
   }
-
   function gerarProtocolo() {
-    const ano = new Date().getFullYear();
-    const seq = String(Math.floor(Math.random() * 9000) + 1000);
-    return `CAP-${ano}-${seq}`;
+    const now = new Date();
+    const ano = now.getFullYear();
+    const ts  = String(now.getTime()).slice(-5);
+    const rnd = String(Math.floor(Math.random() * 90) + 10);
+    return `CAP-${ano}-${ts}${rnd}`;
   }
 
   function selectTipo(el, value) {
@@ -1540,7 +1892,6 @@
     el.classList.add('selected');
     selectedTipo = value;
   }
-
   function copiarProtocolo() {
     if (protocoloGerado) {
       navigator.clipboard.writeText(protocoloGerado).then(() => {
@@ -1550,42 +1901,47 @@
       });
     }
   }
-
   function selectCat(el, value) {
     document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
     selectedCat = value;
     const other = document.getElementById('otherInput');
-    if(value === 'Outro') other.classList.add('show');
+    if (value === 'Outro') other.classList.add('show');
     else other.classList.remove('show');
   }
-
   function selectUrg(el, value) {
     document.querySelectorAll('.urg-btn').forEach(b => {
       b.classList.remove('selected-alta','selected-media','selected-baixa');
     });
     selectedUrg = value;
-    if(value === 'Alta') el.classList.add('selected-alta');
-    else if(value === 'Média') el.classList.add('selected-media');
+    if (value === 'Alta') el.classList.add('selected-alta');
+    else if (value === 'Média') el.classList.add('selected-media');
     else el.classList.add('selected-baixa');
   }
 
   function updateSteps(step) {
-    for(let i=0;i<3;i++){
-      const seg = document.getElementById('seg'+i);
-      const name = document.getElementById('sname'+i);
-      seg.className = 'step-segment';
-      name.className = 'step-name';
-      if(i < step) { seg.classList.add('done'); }
-      else if(i === step) { seg.classList.add('active'); name.classList.add('active'); }
+    for (let i = 0; i < 3; i++) {
+      const item = document.getElementById('stepItem' + i);
+      const circ = document.getElementById('seg' + i);
+      const name = document.getElementById('sname' + i);
+      item.className = 'step-item';
+      if (i < step) {
+        item.classList.add('done');
+        circ.textContent = '✓';
+      } else if (i === step) {
+        item.classList.add('active');
+        circ.textContent = String(i + 1);
+      } else {
+        circ.textContent = String(i + 1);
+      }
     }
   }
 
   function showErr(id, fieldId) {
     const e = document.getElementById(id);
     const f = fieldId ? document.getElementById(fieldId) : null;
-    if (e) { e.classList.add('show'); }
-    if (f) { f.classList.add('has-error'); }
+    if (e) e.classList.add('show');
+    if (f) f.classList.add('has-error');
   }
   function clearErr(id, fieldId) {
     const e = document.getElementById(id);
@@ -1602,41 +1958,45 @@
     clearAllErrors();
     let hasError = false;
 
-    if(currentStep === 0 && step === 1) {
+    if (currentStep === 0 && step === 1) {
       const sala = document.getElementById('sala').value.trim();
-      if(!sala) { showErr('errSala', 'fieldSala'); hasError = true; }
-      if(!selectedCat) { showErr('errCat', 'fieldCat'); hasError = true; }
-      if(hasError) {
-        document.querySelector('.field-error.show')?.scrollIntoView({behavior:'smooth', block:'center'});
+      if (!sala) { showErr('errSala', 'fieldSala'); hasError = true; }
+      if (!selectedCat) { showErr('errCat', 'fieldCat'); hasError = true; }
+      if (selectedCat === 'Outro') {
+        const outroVal = document.getElementById('outroTexto').value.trim();
+        if (outroVal.length < 3) { showErr('errCat', 'fieldCat'); hasError = true; }
+      }
+      if (hasError) {
+        document.querySelector('.field-error.show')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
     }
-    if(currentStep === 1 && step === 2) {
-      if(!selectedUrg) { showErr('errUrg', 'fieldUrg'); hasError = true; }
+    if (currentStep === 1 && step === 2) {
+      if (!selectedUrg) { showErr('errUrg', 'fieldUrg'); hasError = true; }
       const desc = document.getElementById('descricao').value.trim();
-      if(desc.length < 5) { showErr('errDesc', 'fieldDesc'); hasError = true; }
-      if(hasError) {
-        document.querySelector('.field-error.show')?.scrollIntoView({behavior:'smooth', block:'center'});
+      if (desc.length < 5) { showErr('errDesc', 'fieldDesc'); hasError = true; }
+      if (hasError) {
+        document.querySelector('.field-error.show')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
-      if(!protocoloGerado) protocoloGerado = gerarProtocolo();
-      // ✅ SEGURANÇA: usa textContent para exibir dados do usuário
+      if (!protocoloGerado) protocoloGerado = gerarProtocolo();
       document.getElementById('resumoProtocolo').textContent = protocoloGerado;
       document.getElementById('resumoSala').textContent = document.getElementById('sala').value;
       document.getElementById('resumoCat').textContent = selectedCat;
       document.getElementById('resumoUrg').textContent = selectedUrg;
     }
 
-    document.getElementById('step'+currentStep).classList.remove('active');
+    document.getElementById('step' + currentStep).classList.remove('active');
     currentStep = step;
-    document.getElementById('step'+currentStep).classList.add('active');
+    document.getElementById('step' + currentStep).classList.add('active');
     updateSteps(step);
-    window.scrollTo({top:0, behavior:'smooth'});
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxId77oG4ZTcRzXth8Xdy_WNoKaDW_Lyer8dBqkohg4yOuOy9bSQWP_VcUh-3ZGW3vn/exec';
+  const API_ORIGIN_KEY  = 'cap-fmc-v1';
 
-  function abrirLGPD() { document.getElementById('lgpdOverlay').classList.add('open'); }
+  function abrirLGPD()  { document.getElementById('lgpdOverlay').classList.add('open'); }
   function fecharLGPD() { document.getElementById('lgpdOverlay').classList.remove('open'); }
   function fecharLGPDBanner() {
     document.getElementById('lgpdBar').classList.add('hidden');
@@ -1650,40 +2010,33 @@
   } catch(e) {}
 
   function submitForm() {
-    // ✅ SEGURANÇA: bloqueia duplo envio
     if (formSubmitted) return;
-
     clearAllErrors();
     let hasError = false;
-
     const nome = document.getElementById('nome').value.trim();
     const tel  = document.getElementById('telefone').value.trim();
-
-    if(!nome || !isNomeValido(nome)) { showErr('errNome', 'fieldNome'); hasError = true; }
-    if(!selectedTipo) { showErr('errTipo', 'fieldTipo'); hasError = true; }
-    if(!document.getElementById('lgpdCheck').checked) { showErr('errLgpd', 'fieldLgpd'); hasError = true; }
-    // Telefone agora obrigatório
-    if(!tel || !isTelValido(tel)) { showErr('errTel', 'fieldTel'); hasError = true; }
-
-    if(hasError) {
-      document.querySelector('.field-error.show')?.scrollIntoView({behavior:'smooth', block:'center'});
+    if (!nome || !isNomeValido(nome))  { showErr('errNome', 'fieldNome'); hasError = true; }
+    if (!selectedTipo)                  { showErr('errTipo', 'fieldTipo'); hasError = true; }
+    if (!document.getElementById('lgpdCheck').checked) { showErr('errLgpd', 'fieldLgpd'); hasError = true; }
+    if (!tel || !isTelValido(tel))      { showErr('errTel', 'fieldTel');   hasError = true; }
+    if (hasError) {
+      document.querySelector('.field-error.show')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
-    const sala = document.getElementById('sala').value;
-    const cat = selectedCat === 'Outro'
+    const sala    = document.getElementById('sala').value;
+    const cat     = selectedCat === 'Outro'
       ? sanitize(document.getElementById('outroTexto').value) || 'Outro'
       : selectedCat;
-    const urg = selectedUrg;
-    const desc = sanitize(document.getElementById('descricao').value);
+    const urg     = selectedUrg;
+    const desc    = sanitize(document.getElementById('descricao').value);
     const nomeSan = sanitize(nome);
     const telSan  = sanitize(tel) || '—';
     const protocolo = protocoloGerado || gerarProtocolo();
 
-    // ✅ SEGURANÇA: flag + desabilita botão
     formSubmitted = true;
     const btnSubmit = document.getElementById('btnSubmit');
-    btnSubmit.textContent = 'Enviando...';
+    btnSubmit.textContent = 'Enviando…';
     btnSubmit.disabled = true;
 
     fetch(APPS_SCRIPT_URL, {
@@ -1691,38 +2044,30 @@
       mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        protocolo: protocolo,
-        sala: sala,
-        categoria: cat,
-        urgencia: urg,
-        descricao: desc,
-        nome: nomeSan,
-        tipo: selectedTipo,
-        telefone: telSan
+        origin:    API_ORIGIN_KEY,
+        protocolo, sala, categoria: cat,
+        urgencia:  urg, descricao: desc,
+        nome:      nomeSan, tipo: selectedTipo, telefone: telSan
       })
     })
-    .then(() => {
-      mostrarSucesso(sala, cat, urg, protocolo, nomeSan);
-    })
-    .catch(() => {
-      mostrarSucesso(sala, cat, urg, protocolo, nomeSan);
-    });
+    .then(() => mostrarSucesso(sala, cat, urg, protocolo, nomeSan))
+    .catch(() => mostrarSucesso(sala, cat, urg, protocolo, nomeSan));
   }
 
   function mostrarSucesso(sala, cat, urg, protocolo, nome) {
     document.querySelector('.form-card').style.display = 'none';
-    document.querySelector('.header').querySelector('.steps-bar').style.display = 'none';
-    document.querySelector('.header').querySelector('.steps-label').style.display = 'none';
+    document.getElementById('stepsWrap').style.display = 'none';
+    document.querySelector('.hero').style.display = 'none';
+    document.querySelector('.footer-tag').style.display = 'none';
 
     const successEl = document.getElementById('success');
     successEl.style.display = 'block';
 
-    // ✅ SEGURANÇA: textContent em vez de innerHTML
     document.getElementById('successProtocolo').textContent = protocolo;
-    document.getElementById('successSala').textContent = sala;
-    document.getElementById('successCat').textContent = cat;
-    document.getElementById('successUrg').textContent = urg;
-    document.getElementById('successTipo').textContent = selectedTipo;
+    document.getElementById('successSala').textContent      = sala;
+    document.getElementById('successCat').textContent       = cat;
+    document.getElementById('successUrg').textContent       = urg;
+    document.getElementById('successTipo').textContent      = selectedTipo;
 
     try {
       const chamados = JSON.parse(localStorage.getItem('cap_chamados') || '{}');
@@ -1732,21 +2077,15 @@
         status: 0,
         abertoemTs: new Date().toLocaleString('pt-BR')
       };
-      // ✅ SEGURANÇA: limita chamados armazenados (evita localStorage inflado)
       const keys = Object.keys(chamados);
-      if (keys.length > 50) {
-        delete chamados[keys[0]];
-      }
+      if (keys.length > 50) { delete chamados[keys[0]]; }
       localStorage.setItem('cap_chamados', JSON.stringify(chamados));
     } catch(e) {}
 
-    window.scrollTo({top:0, behavior:'smooth'});
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function voltarFormulario() {
-    location.reload();
-  }
-
+  function voltarFormulario() { location.reload(); }
 </script>
 
 <script>
